@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const User = require('./User');
 
 const Schema = mongoose.Schema;
 const { ObjectId } = Schema.Types;
@@ -7,7 +6,7 @@ const { ObjectId } = Schema.Types;
 const RecipeSchema = new Schema(
   {
     name: String,
-    createdBy: [{ type: ObjectId, ref: 'User' }],
+    createdBy: { type: ObjectId, ref: 'User' },
     ingredients: [{ type: ObjectId, ref: 'Ingredient' }],
     prepTime: Number,
     cookBooked: [{ type: ObjectId, ref: 'User' }],
@@ -16,6 +15,6 @@ const RecipeSchema = new Schema(
   { timestamps: true }
 );
 
-const Recipe = mongoose.model('recipe', RecipeSchema);
+const Recipe = mongoose.model('Recipe', RecipeSchema);
 
 module.exports = Recipe;

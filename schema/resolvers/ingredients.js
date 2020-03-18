@@ -1,4 +1,5 @@
 const Ingredient = require('../../models/Ingredient');
+const { UserInputError } = require('apollo-server-express');
 
 module.exports = {
   Query: {
@@ -10,8 +11,14 @@ module.exports = {
     }
   },
   Mutation: {
-    newIngredient: (root, args, context, info) => {
+    newIngredient: async (root, args, context, info) => {
+      if (await Ingredient.findOne({ name: args.ingredient.name })) {
+        throw new UserInputError('Ingredient already exists.');
+      }
       return Ingredient.create(args.ingredient);
     }
+  },
+  Ingredient: {
+    inRecipes: (ingredient, args, context, info) => {}
   }
 };

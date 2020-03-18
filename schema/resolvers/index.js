@@ -1,6 +1,6 @@
 const users = require('./users');
-const recipes = require('./recipes');
 const ingredients = require('./ingredients');
+const recipes = require('./recipes');
 
 const resolvers = [users, recipes, ingredients];
 module.exports = resolvers;

@@ -14,6 +14,6 @@ const IngredientSchema = new Schema(
   { timestamps: true }
 );
 
-const Ingredient = mongoose.model('ingredient', IngredientSchema);
+const Ingredient = mongoose.model('Ingredient', IngredientSchema);
 
 module.exports = Ingredient;

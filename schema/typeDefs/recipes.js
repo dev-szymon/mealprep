@@ -1,4 +1,5 @@
 const { gql } = require('apollo-server-express');
+const User = require('./users');
 
 module.exports = Recipe = gql`
   extend type Query {
@@ -11,7 +12,7 @@ module.exports = Recipe = gql`
   }
 
   input createNewRecipe {
-    name: ID!
+    name: String!
     createdBy: ID!
     ingredients: [ID!]!
     prepTime: Int!
@@ -20,7 +21,7 @@ module.exports = Recipe = gql`
   type Recipe {
     id: ID!
     name: String!
-    createdBy: ID!
+    createdBy: User!
     ingredients: [Ingredient!]!
     prepTime: Int
     cookBooked: [User!]!

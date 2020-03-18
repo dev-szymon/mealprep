@@ -2,16 +2,17 @@ const mongoose = require('mongoose');
 const { hash, compare } = require('bcrypt');
 
 const Schema = mongoose.Schema;
+const { ObjectId } = Schema.Types;
 
 const UserSchema = new Schema(
   {
     name: { type: String },
     email: { type: String },
     password: { type: String },
-    recipesCreated: [{ type: Schema.Types.ObjectId, ref: 'Recipe' }],
-    recipesSaved: [{ type: Schema.Types.ObjectId, ref: 'Recipe' }],
-    followers: [{ type: Schema.Types.ObjectId, ref: 'User' }],
-    following: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+    recipesCreated: [{ type: ObjectId, ref: 'Recipe' }],
+    recipesSaved: [{ type: ObjectId, ref: 'Recipe' }],
+    followers: [{ type: ObjectId, ref: 'User' }],
+    following: [{ type: ObjectId, ref: 'User' }]
   },
   { timestamps: true }
 );
