@@ -27,12 +27,41 @@ module.exports = {
         throw new AuthenticationError(message);
       }
       return user;
-    }
+    },
+    followUser: async (root, args, context, info) => {
+      const { followedId, loggedIn } = args;
+      await User.update(
+        { _id: { $in: followedId } },
+        {
+          $push: { followers: loggedIn }
+        }
+      );
+      await User.update(
+        { _id: { $in: loggedIn } },
+        {
+          $push: { followed: followedId }
+        }
+      );
+    },
+
+    unfollowUser: async (root, args, context, info) => {}
   },
   User: {
-    recipesCreated: (user, args, context, info) => {},
-    recipesSaved: (user, args, context, info) => {},
-    followers: (user, args, context, info) => {},
-    following: (user, args, context, info) => {}
+    recipesCreated: async (user, args, context, info) => {
+      await user.populate('recipesCreated').execPopulate();
+      return user.recipesCreated;
+    },
+    recipesSaved: async (user, args, context, info) => {
+      await user.populate('recipesSaved').execPopulate();
+      return user.recipesSaved;
+    },
+    followers: async (user, args, context, info) => {
+      await user.populate('followers').execPopulate();
+      return user.followers;
+    },
+    following: async (user, args, context, info) => {
+      await user.populate('following').execPopulate();
+      return user.following;
+    }
   }
 };

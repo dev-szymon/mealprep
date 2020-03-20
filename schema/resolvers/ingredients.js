@@ -19,6 +19,11 @@ module.exports = {
     }
   },
   Ingredient: {
-    inRecipes: (ingredient, args, context, info) => {}
+    inRecipes: async (ingredient, args, context, info) => {
+      await ingredient
+        .populate({ path: 'inRecipes', populate: { path: 'inRecipes' } })
+        .execPopulate();
+      return ingredient.inRecipes;
+    }
   }
 };

@@ -10,6 +10,8 @@ module.exports = User = gql`
   extend type Mutation {
     newUser(name: String!, email: String!, password: String!): User
     logIn(email: String!, password: String!): User
+    followUser(loggedIn: ID!, followedId: ID!): User
+    unfollowUser(loggedIn: ID!, followedId: ID!): User
   }
 
   type User {
