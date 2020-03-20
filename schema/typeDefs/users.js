@@ -20,6 +20,7 @@ module.exports = User = gql`
     email: String!
     recipesCreated: [Recipe]!
     recipesSaved: [Recipe]!
+    liked: [Recipe]!
     followers: [User]!
     following: [User]!
   }

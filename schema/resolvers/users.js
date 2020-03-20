@@ -28,23 +28,39 @@ module.exports = {
       }
       return user;
     },
+    // add check if user is not already following
     followUser: async (root, args, context, info) => {
       const { followedId, loggedIn } = args;
-      await User.update(
+      await User.updateOne(
         { _id: { $in: followedId } },
         {
           $push: { followers: loggedIn }
         }
       );
-      await User.update(
+      await User.updateOne(
         { _id: { $in: loggedIn } },
         {
-          $push: { followed: followedId }
+          $push: { following: followedId }
         }
       );
+      return await User.findById(followedId);
     },
-
-    unfollowUser: async (root, args, context, info) => {}
+    unfollowUser: async (root, args, context, info) => {
+      const { followedId, loggedIn } = args;
+      await User.updateOne(
+        { _id: { $in: followedId } },
+        {
+          $pull: { followers: loggedIn }
+        }
+      );
+      await User.updateOne(
+        { _id: { $in: loggedIn } },
+        {
+          $pull: { following: followedId }
+        }
+      );
+      return await User.findById(followedId);
+    }
   },
   User: {
     recipesCreated: async (user, args, context, info) => {
@@ -62,6 +78,10 @@ module.exports = {
     following: async (user, args, context, info) => {
       await user.populate('following').execPopulate();
       return user.following;
+    },
+    liked: async (user, args, context, info) => {
+      await user.populate('liked').execPopulate();
+      return user.liked;
     }
   }
 };

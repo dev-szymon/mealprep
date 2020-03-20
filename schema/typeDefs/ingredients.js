@@ -12,19 +12,19 @@ module.exports = Ingredient = gql`
 
   input createNewIngredient {
     name: String!
-    kcal: Int!
-    carbs: Int!
-    protein: Int!
-    fats: Int!
+    kcal: Float!
+    carbs: Float!
+    protein: Float!
+    fats: Float!
   }
 
   type Ingredient {
     id: ID!
     name: String!
-    kcal: Int!
-    carbs: Int!
-    protein: Int!
-    fats: Int!
+    kcal: Float!
+    carbs: Float!
+    protein: Float!
+    fats: Float!
     inRecipes: [Recipe]!
   }
 `;

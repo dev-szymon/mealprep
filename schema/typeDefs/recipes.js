@@ -10,7 +10,9 @@ module.exports = Recipe = gql`
   extend type Mutation {
     newRecipe(recipe: createNewRecipe): Recipe
     saveRecipe(loggedIn: ID!, recipeId: ID!): Recipe
-    unsaveRecipe(loggedIn: ID!, recipe: ID!): Recipe
+    unsaveRecipe(loggedIn: ID!, recipeId: ID!): Recipe
+    likeRecipe(loggedIn: ID!, recipeId: ID!): Recipe
+    unlikeRecipe(loggedIn: ID!, recipeId: ID!): Recipe
   }
 
   input createNewRecipe {
@@ -18,7 +20,7 @@ module.exports = Recipe = gql`
     createdBy: ID!
     ingredients: [ID!]!
     description: String!
-    prepTime: Int!
+    prepTime: Float!
   }
 
   type Recipe {
@@ -27,7 +29,7 @@ module.exports = Recipe = gql`
     createdBy: User!
     ingredients: [Ingredient!]!
     description: String!
-    prepTime: Int!
+    prepTime: Float!
     cookBooked: [User!]!
     likes: [User!]!
   }
