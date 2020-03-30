@@ -18,6 +18,7 @@ module.exports = Recipe = gql`
   input createNewRecipe {
     name: String!
     createdBy: ID!
+    public: Boolean!
     ingredients: [ID!]!
     description: String!
     prepTime: Float!
@@ -27,6 +28,7 @@ module.exports = Recipe = gql`
     id: ID!
     name: String!
     createdBy: User!
+    public: Boolean!
     ingredients: [Ingredient!]!
     description: String!
     prepTime: Float!

@@ -58,11 +58,13 @@ module.exports = {
       const { loggedIn, recipeId } = args;
       await User.updateOne(
         { _id: { $in: loggedIn } },
-        { $push: { liked: recipeId } }
+        { $push: { liked: recipeId } },
+        { upsert: true, new: true }
       );
       await Recipe.updateOne(
         { _id: { $in: recipeId } },
-        { $push: { likes: loggedIn } }
+        { $push: { likes: loggedIn } },
+        { upsert: true, new: true }
       );
       return await Recipe.findById(recipeId);
     },

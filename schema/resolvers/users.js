@@ -82,6 +82,13 @@ module.exports = {
     liked: async (user, args, context, info) => {
       await user.populate('liked').execPopulate();
       return user.liked;
+    },
+    mealPlan: async (user, args, context, info) => {
+      // in order to populate an array you have to go deeper
+      await user
+        .populate({ path: 'mealPlan', populate: { path: 'mealPlan' } })
+        .execPopulate();
+      return user.mealPlan;
     }
   }
 };

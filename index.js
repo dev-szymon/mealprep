@@ -7,7 +7,10 @@ const resolvers = require('./schema/resolvers/index');
 
 const server = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  context: ({ req, res }) => {
+    req, res;
+  }
 });
 
 const app = express();
