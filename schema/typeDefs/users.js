@@ -18,7 +18,7 @@ module.exports = User = gql`
     id: ID!
     name: String!
     email: String!
-    mealPlan: [Day]!
+    mealPlan: Week
     recipesCreated: [Recipe]!
     recipesSaved: [Recipe]!
     liked: [Recipe]!

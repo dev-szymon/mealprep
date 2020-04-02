@@ -1,4 +1,5 @@
 const User = require('../../models/User');
+const Week = require('../../models/Week');
 const { AuthenticationError } = require('apollo-server-express');
 
 module.exports = {
@@ -16,8 +17,16 @@ module.exports = {
     }
   },
   Mutation: {
-    newUser: (root, args, context, info) => {
-      return User.create(args);
+    newUser: async (root, args, context, info) => {
+      // problems with creating week
+      const createdUser = await User.create(args);
+      const createdWeek = await Week.create({ user: createdUser });
+      await User.updateOne(
+        { _id: createdUser },
+        { $set: { mealPlan: createdWeek } },
+        { upsert: true, new: true }
+      );
+      return createdUser;
     },
     logIn: async (root, args, context, info) => {
       // probably need to modularise
@@ -84,10 +93,7 @@ module.exports = {
       return user.liked;
     },
     mealPlan: async (user, args, context, info) => {
-      // in order to populate an array you have to go deeper
-      await user
-        .populate({ path: 'mealPlan', populate: { path: 'mealPlan' } })
-        .execPopulate();
+      await user.populate({ path: 'mealPlan' }).execPopulate();
       return user.mealPlan;
     }
   }

@@ -9,7 +9,7 @@ const UserSchema = new Schema(
     name: { type: String },
     email: { type: String },
     password: { type: String },
-    mealPlan: [{ type: ObjectId, ref: 'Dayplan' }],
+    mealPlan: { type: ObjectId, ref: 'Week' },
     recipesCreated: [{ type: ObjectId, ref: 'Recipe' }],
     recipesSaved: [{ type: ObjectId, ref: 'Recipe' }],
     followers: [{ type: ObjectId, ref: 'User' }],
