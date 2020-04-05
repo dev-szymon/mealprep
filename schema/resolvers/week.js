@@ -8,25 +8,30 @@ module.exports = {
     },
     getMeal: (root, args, context, info) => {
       return Meal.findById(args.id);
-    }
+    },
   },
   Mutation: {
     addMeal: async (root, args, context, info) => {
       const createdMeal = await Meal.create(args);
-      const { day, week } = args;
+      const { day, week, recipe } = args;
       await Week.updateOne(
         { _id: { $in: week } },
         {
-          $push: { [day]: createdMeal }
+          $push: { [day]: createdMeal },
         }
       );
-      return Week.findById(args.dayID);
+      await Meal.updateOne(
+        { _id: { $in: createdMeal } },
+        { $set: { recipe: recipe } },
+        { new: true, upsert: true }
+      );
+      return createdMeal;
     },
     removeMeal: async (root, args, context, info) => {
       // check if I have to pull from day first
       await Meal.deleteOne({ _id: { $in: args.meal } });
-      return dayID;
-    }
+      return args.week;
+    },
   },
   Week: {
     user: async (week, args, context, info) => {
@@ -76,12 +81,17 @@ module.exports = {
         .populate({ path: 'sun', populate: { path: 'sun' } })
         .execPopulate();
       return week.sun;
-    }
+    },
   },
   Meal: {
     recipe: async (meal, args, context, info) => {
-      await meal.populate('recipe').execPopulate();
+      await meal
+        .populate({
+          path: 'recipe',
+          // populate: { path: 'recipe', populate: { path: 'recipe' } },
+        })
+        .execPopulate();
       return meal.recipe;
-    }
-  }
+    },
+  },
 };

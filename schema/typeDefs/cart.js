@@ -14,11 +14,4 @@ module.exports = cart = gql`
     ingredients: String!
     meals: [Meal]!
   }
-
-  type Meal {
-    id: ID!
-    dayID: ID!
-    recipe: Recipe!
-    label: String!
-  }
 `;

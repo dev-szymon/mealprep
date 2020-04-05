@@ -14,7 +14,7 @@ module.exports = {
     },
     getUser: (root, args, context, info) => {
       return User.findById(args.id);
-    }
+    },
   },
   Mutation: {
     newUser: async (root, args, context, info) => {
@@ -43,13 +43,13 @@ module.exports = {
       await User.updateOne(
         { _id: { $in: followedId } },
         {
-          $push: { followers: loggedIn }
+          $push: { followers: loggedIn },
         }
       );
       await User.updateOne(
         { _id: { $in: loggedIn } },
         {
-          $push: { following: followedId }
+          $push: { following: followedId },
         }
       );
       return await User.findById(followedId);
@@ -59,17 +59,17 @@ module.exports = {
       await User.updateOne(
         { _id: { $in: followedId } },
         {
-          $pull: { followers: loggedIn }
+          $pull: { followers: loggedIn },
         }
       );
       await User.updateOne(
         { _id: { $in: loggedIn } },
         {
-          $pull: { following: followedId }
+          $pull: { following: followedId },
         }
       );
       return await User.findById(followedId);
-    }
+    },
   },
   User: {
     recipesCreated: async (user, args, context, info) => {
@@ -93,8 +93,10 @@ module.exports = {
       return user.liked;
     },
     mealPlan: async (user, args, context, info) => {
-      await user.populate({ path: 'mealPlan' }).execPopulate();
+      await user
+        .populate({ path: 'mealPlan', populate: { path: 'mealPlan' } })
+        .execPopulate();
       return user.mealPlan;
-    }
-  }
+    },
+  },
 };

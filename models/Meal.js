@@ -5,12 +5,16 @@ const { ObjectId } = Schema.Types;
 
 const MealSchema = new Schema(
   {
-    dayID: { type: ObjectId, ref: 'Dayplan' },
+    week: { type: ObjectId, ref: 'Week' },
+    day: {
+      type: String,
+      enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
+    },
     recipe: { type: ObjectId, ref: 'Recipe' },
     label: {
       type: String,
-      enum: ['brf', '2ndbrf', 'lunch', 'dinner', 'snack', 'supper']
-    }
+      enum: ['brf', '2ndbrf', 'lunch', 'dinner', 'snack', 'supper'],
+    },
   },
   { timestamps: true }
 );

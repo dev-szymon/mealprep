@@ -7,10 +7,12 @@ const RecipeSchema = new Schema(
   {
     name: String,
     createdBy: { type: ObjectId, ref: 'User' },
+    public: Boolean,
     ingredients: [{ type: ObjectId, ref: 'Ingredient' }],
+    description: String,
     prepTime: Number,
     cookBooked: [{ type: ObjectId, ref: 'User' }],
-    likes: [{ type: ObjectId, ref: 'User' }]
+    likes: [{ type: ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );

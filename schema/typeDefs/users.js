@@ -1,5 +1,6 @@
 const { gql } = require('apollo-server-express');
 
+// add logout mutation
 module.exports = User = gql`
   extend type Query {
     me: User
