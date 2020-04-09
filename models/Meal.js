@@ -5,11 +5,7 @@ const { ObjectId } = Schema.Types;
 
 const MealSchema = new Schema(
   {
-    week: { type: ObjectId, ref: 'Week' },
-    day: {
-      type: String,
-      enum: ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
-    },
+    day: { type: ObjectId, ref: 'Day' },
     recipe: { type: ObjectId, ref: 'Recipe' },
     label: {
       type: String,

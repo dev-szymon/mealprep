@@ -1,5 +1,6 @@
 const User = require('../../models/User');
 const Week = require('../../models/Week');
+const Day = require('../../models/Day');
 const { AuthenticationError } = require('apollo-server-express');
 
 module.exports = {
@@ -7,9 +8,10 @@ module.exports = {
     //   context is req
     me: (root, args, context, info) => {
       // checks the ID of logged in user
-      return User.findById();
+      return User.findById(args.userId);
     },
     getUsers: (root, args, context, info) => {
+      // if can't find return user can no longer be found
       return User.find({});
     },
     getUser: (root, args, context, info) => {
@@ -18,14 +20,46 @@ module.exports = {
   },
   Mutation: {
     newUser: async (root, args, context, info) => {
-      // problems with creating week
       const createdUser = await User.create(args);
-      const createdWeek = await Week.create({ user: createdUser });
+
+      const createdWeek = await Week.create({ user: createdUser, days: [] });
       await User.updateOne(
         { _id: createdUser },
         { $set: { mealPlan: createdWeek } },
         { upsert: true, new: true }
       );
+
+      // getWeek returns array of dates of current week starting from previous sunday
+      function getWeek(fromDate) {
+        var sunday = new Date(
+            fromDate.setDate(fromDate.getDate() - fromDate.getDay())
+          ),
+          result = [new Date(sunday)];
+        while (sunday.setDate(sunday.getDate() + 1) && sunday.getDay() !== 0) {
+          result.push(new Date(sunday));
+        }
+        return result;
+      }
+
+      const date = new Date();
+
+      // creates days for each day of the current week, pushes them to the users week
+      const createDays = async () => {
+        getWeek(date).map(async (d) => {
+          const createdDay = await Day.create({
+            inWeek: createdWeek,
+            meals: [],
+            date: d,
+          });
+          await Week.updateOne(
+            { _id: createdWeek },
+            { $push: { days: createdDay } },
+            { upsert: true, new: true }
+          );
+        });
+        // );
+      };
+      createDays();
       return createdUser;
     },
     logIn: async (root, args, context, info) => {
@@ -93,9 +127,7 @@ module.exports = {
       return user.liked;
     },
     mealPlan: async (user, args, context, info) => {
-      await user
-        .populate({ path: 'mealPlan', populate: { path: 'mealPlan' } })
-        .execPopulate();
+      await user.populate({ path: 'mealPlan' }).execPopulate();
       return user.mealPlan;
     },
   },

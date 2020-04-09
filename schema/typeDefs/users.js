@@ -3,13 +3,13 @@ const { gql } = require('apollo-server-express');
 // add logout mutation
 module.exports = User = gql`
   extend type Query {
-    me: User
+    me(userId: ID!): User
     getUsers: [User]!
     getUser(id: ID!): User
   }
 
   extend type Mutation {
-    newUser(name: String!, email: String!, password: String!): User
+    newUser(username: String!, email: String!, password: String!): User
     logIn(email: String!, password: String!): User
     followUser(loggedIn: ID!, followedId: ID!): User
     unfollowUser(loggedIn: ID!, followedId: ID!): User
@@ -17,7 +17,7 @@ module.exports = User = gql`
 
   type User {
     id: ID!
-    name: String!
+    username: String!
     email: String!
     mealPlan: Week
     recipesCreated: [Recipe]!

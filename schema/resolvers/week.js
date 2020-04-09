@@ -34,53 +34,29 @@ module.exports = {
     },
   },
   Week: {
-    user: async (week, args, context, info) => {
+    owner: async (week, args, context, info) => {
       await week
         .populate({ path: 'user', populate: { path: 'user' } })
         .execPopulate();
       return week.user;
     },
-    mon: async (week, args, context, info) => {
+    days: async (week, args, context, info) => {
       await week
-        .populate({ path: 'mon', populate: { path: 'mon' } })
+        .populate({ path: 'days', populate: { path: 'days' } })
         .execPopulate();
-      return week.mon;
+      return week.days;
     },
-    tue: async (week, args, context, info) => {
-      await week
-        .populate({ path: 'tue', populate: { path: 'tue' } })
-        .execPopulate();
-      return week.tue;
+  },
+  Day: {
+    inWeek: (day, args, context, info) => {
+      day.populate({ path: 'inWeek' }).execPopulate();
+      return day.inWeek;
     },
-    wed: async (week, args, context, info) => {
-      await week
-        .populate({ path: 'wed', populate: { path: 'wed' } })
+    meals: (day, args, context, info) => {
+      day
+        .populate({ path: 'meals', populate: { path: 'meals' } })
         .execPopulate();
-      return week.wed;
-    },
-    thu: async (week, args, context, info) => {
-      await week
-        .populate({ path: 'thu', populate: { path: 'thu' } })
-        .execPopulate();
-      return week.thu;
-    },
-    fri: async (week, args, context, info) => {
-      await week
-        .populate({ path: 'fri', populate: { path: 'fri' } })
-        .execPopulate();
-      return week.fri;
-    },
-    sat: async (week, args, context, info) => {
-      await week
-        .populate({ path: 'sat', populate: { path: 'sat' } })
-        .execPopulate();
-      return week.sat;
-    },
-    sun: async (week, args, context, info) => {
-      await week
-        .populate({ path: 'sun', populate: { path: 'sun' } })
-        .execPopulate();
-      return week.sun;
+      return day.meals;
     },
   },
   Meal: {

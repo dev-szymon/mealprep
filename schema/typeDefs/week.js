@@ -13,20 +13,20 @@ module.exports = dayplan = gql`
 
   type Week {
     id: ID!
-    user: User!
-    mon: [Meal]!
-    tue: [Meal]!
-    wed: [Meal]!
-    thu: [Meal]!
-    fri: [Meal]!
-    sat: [Meal]!
-    sun: [Meal]!
+    owner: User!
+    days: [Day]!
+  }
+
+  type Day {
+    id: ID!
+    inWeek: Week!
+    meals: [Meal]!
+    date: String!
   }
 
   type Meal {
     id: ID!
-    week: ID
-    day: String
+    day: ID
     recipe: Recipe
     label: String
   }

@@ -4,7 +4,8 @@
   "description": "Recipe and grocery shopping app",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js ",
+    "start": "code . && nodemon index.js "
   },
   "keywords": [
     "food",
