@@ -1,6 +1,7 @@
 const User = require('../../models/User');
 const Week = require('../../models/Week');
 const Day = require('../../models/Day');
+const useryup = require('../validation/user');
 const { AuthenticationError } = require('apollo-server-express');
 
 module.exports = {
@@ -21,13 +22,13 @@ module.exports = {
   Mutation: {
     newUser: async (root, args, context, info) => {
       const createdUser = await User.create(args);
+      try {
+        await useryup.validate(args, { abortEarly: false });
+      } catch (err) {
+        console.log(err);
+      }
 
-      const createdWeek = await Week.create({ user: createdUser, days: [] });
-      await User.updateOne(
-        { _id: createdUser },
-        { $set: { mealPlan: createdWeek } },
-        { upsert: true, new: true }
-      );
+      const createdWeek = await Week.create({ owner: createdUser, days: [] });
 
       // getWeek returns array of dates of current week starting from previous sunday
       function getWeek(fromDate) {
@@ -52,14 +53,22 @@ module.exports = {
             date: d,
           });
           await Week.updateOne(
-            { _id: createdWeek },
+            { _id: { $in: createdWeek } },
             { $push: { days: createdDay } },
             { upsert: true, new: true }
           );
         });
-        // );
+        return;
       };
-      createDays();
+
+      await createDays();
+
+      await User.updateOne(
+        { _id: { $in: createdUser } },
+        { $set: { mealPlan: createdWeek } },
+        { upsert: true, new: true }
+      );
+
       return createdUser;
     },
     logIn: async (root, args, context, info) => {
@@ -127,7 +136,9 @@ module.exports = {
       return user.liked;
     },
     mealPlan: async (user, args, context, info) => {
-      await user.populate({ path: 'mealPlan' }).execPopulate();
+      await user
+        .populate({ path: 'mealPlan', populate: { path: 'mealPlan' } })
+        .execPopulate();
       return user.mealPlan;
     },
   },
