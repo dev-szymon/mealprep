@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const db = process.env.DB_CONNECT || require('../variables');
+const db = process.env.DB_CONNECT;
 
 const connectDB = async () => {
   try {
