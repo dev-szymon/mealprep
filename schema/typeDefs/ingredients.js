@@ -28,3 +28,5 @@ module.exports = Ingredient = gql`
     inRecipes: [Recipe]!
   }
 `;
+
+// need to create separate model for tips with author and likes

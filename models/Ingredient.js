@@ -7,9 +7,9 @@ const IngredientSchema = new Schema(
     name: String,
     fats: Number,
     carbs: Number,
-    fibres: Number,
+    protein: Number,
     kcal: Number,
-    inRecipes: [{ type: Schema.Types.ObjectId, ref: 'Recipe' }]
+    inRecipes: [{ type: Schema.Types.ObjectId, ref: 'Recipe' }],
   },
   { timestamps: true }
 );

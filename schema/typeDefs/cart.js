@@ -6,12 +6,12 @@ module.exports = cart = gql`
   }
 
   extend type Mutation {
+    addProduct(cart: ID!, product: ID!): Cart
   }
 
   type Cart {
     id: ID!
-    user: User!
-    ingredients: String!
-    meals: [Meal]!
+    owner: User!
+    products: [Ingredient]!
   }
 `;

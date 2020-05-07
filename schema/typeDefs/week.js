@@ -7,8 +7,8 @@ module.exports = dayplan = gql`
   }
 
   extend type Mutation {
-    addMeal(week: ID!, day: ID!, recipe: ID!, label: String!): Meal
-    removeMeal(meal: ID!): Meal
+    addMeal(day: ID!, recipe: ID!, label: String!, cart: ID!): Meal
+    removeMeal(meal: ID!, cart: ID!): Meal
   }
 
   type Week {

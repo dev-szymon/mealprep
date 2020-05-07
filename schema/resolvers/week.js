@@ -1,5 +1,8 @@
 const Week = require('../../models/Week');
+const Day = require('../../models/Day');
 const Meal = require('../../models/Meal');
+const Cart = require('../../models/Cart');
+const Recipe = require('../../models/Recipe');
 
 module.exports = {
   Query: {
@@ -12,14 +15,27 @@ module.exports = {
   },
   Mutation: {
     addMeal: async (root, args, context, info) => {
-      const createdMeal = await Meal.create(args);
-      const { day, week, recipe } = args;
-      await Week.updateOne(
-        { _id: { $in: week } },
+      const { day, recipe, label, cart } = args;
+      const createdMeal = await Meal.create({
+        day: day,
+        recipe: recipe,
+        label: label,
+      });
+      await Day.updateOne(
+        { _id: { $in: day } },
         {
-          $push: { [day]: createdMeal },
+          $push: { meals: createdMeal },
         }
       );
+      const { ingredients } = await Recipe.findById(recipe);
+
+      await Cart.updateOne(
+        { _id: { $in: cart } },
+        {
+          $push: { products: { $each: ingredients } },
+        }
+      );
+
       await Meal.updateOne(
         { _id: { $in: createdMeal } },
         { $set: { recipe: recipe } },
@@ -29,7 +45,16 @@ module.exports = {
     },
     removeMeal: async (root, args, context, info) => {
       // check if I have to pull from day first
-      await Meal.deleteOne({ _id: { $in: args.meal } });
+      const { meal, cart } = args;
+      const { recipe } = await Meal.findById(meal);
+      const { ingredients } = await Recipe.findById(recipe);
+      console.log(ingredients);
+      await Cart.findOneAndUpdate(
+        { _id: { $in: cart } },
+        { $pull: { products: ingredients } }
+      );
+      console.log(ingredients);
+      await Meal.deleteOne({ _id: { $in: meal } });
       return args.week;
     },
   },
@@ -48,12 +73,12 @@ module.exports = {
     },
   },
   Day: {
-    inWeek: (day, args, context, info) => {
-      day.populate({ path: 'inWeek' }).execPopulate();
+    inWeek: async (day, args, context, info) => {
+      await day.populate({ path: 'inWeek' }).execPopulate();
       return day.inWeek;
     },
-    meals: (day, args, context, info) => {
-      day
+    meals: async (day, args, context, info) => {
+      await day
         .populate({ path: 'meals', populate: { path: 'meals' } })
         .execPopulate();
       return day.meals;
@@ -61,12 +86,7 @@ module.exports = {
   },
   Meal: {
     recipe: async (meal, args, context, info) => {
-      await meal
-        .populate({
-          path: 'recipe',
-          // populate: { path: 'recipe', populate: { path: 'recipe' } },
-        })
-        .execPopulate();
+      await meal.populate('recipe').execPopulate();
       return meal.recipe;
     },
   },

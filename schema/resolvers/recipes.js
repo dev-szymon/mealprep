@@ -9,7 +9,7 @@ module.exports = {
     },
     getRecipes: (root, args, context, info) => {
       return Recipe.find({});
-    }
+    },
   },
   Mutation: {
     newRecipe: async (root, args, context, info) => {
@@ -19,7 +19,7 @@ module.exports = {
       await Ingredient.updateMany(
         { _id: { $in: ingredients } },
         {
-          $push: { inRecipes: createdRecipe }
+          $push: { inRecipes: createdRecipe },
         }
       );
       // push created recipe to author's recipeCreated
@@ -28,6 +28,10 @@ module.exports = {
         { $push: { recipesCreated: createdRecipe } }
       );
       return createdRecipe;
+    },
+    deleteRecipe: async (root, args, context, info) => {
+      await Recipe.deleteOne({ _id: args.recipeID });
+      return null;
     },
     // TODO check if they are not saved yet
     saveRecipe: async (root, args, context, info) => {
@@ -79,7 +83,7 @@ module.exports = {
         { $pull: { likes: loggedIn } }
       );
       return await Recipe.findById(recipeId);
-    }
+    },
   },
   Recipe: {
     // populates recipes with user models from mongoose, as described in model schema
@@ -98,7 +102,7 @@ module.exports = {
       await recipe
         .populate({
           path: 'cookBooked',
-          populate: { path: 'cookBooked' }
+          populate: { path: 'cookBooked' },
         })
         .execPopulate();
       return recipe.cookBooked;
@@ -107,10 +111,10 @@ module.exports = {
       await recipe
         .populate({
           path: 'likes',
-          populate: { path: 'likes' }
+          populate: { path: 'likes' },
         })
         .execPopulate();
       return recipe.likes;
-    }
-  }
+    },
+  },
 };

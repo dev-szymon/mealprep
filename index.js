@@ -10,7 +10,7 @@ const server = new ApolloServer({
   resolvers,
   context: ({ req, res }) => {
     req, res;
-  }
+  },
 });
 
 const app = express();

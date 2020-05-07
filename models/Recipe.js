@@ -9,6 +9,12 @@ const RecipeSchema = new Schema(
     createdBy: { type: ObjectId, ref: 'User' },
     public: Boolean,
     ingredients: [{ type: ObjectId, ref: 'Ingredient' }],
+    category: [
+      {
+        type: String,
+        enum: ['vegan', 'vegetarian', 'carnivore', 'bakery'],
+      },
+    ],
     description: String,
     prepTime: Number,
     cookBooked: [{ type: ObjectId, ref: 'User' }],
