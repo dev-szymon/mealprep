@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const db = require('../variables');
+const db = process.env.DB_HOST;
 
 const connectDB = async () => {
   try {

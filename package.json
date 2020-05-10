@@ -4,8 +4,8 @@
   "description": "Recipe and grocery shopping app",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon index.js ",
-    "start": "code . && nodemon index.js ",
+    "dev": "nodemon index.js",
+    "start": "code . && nodemon index.js",
     "prod": "node index.js"
   },
   "keywords": [
@@ -25,6 +25,7 @@
     "yup": "^0.28.3"
   },
   "devDependencies": {
+    "dotenv": "^8.2.0",
     "nodemon": "^2.0.2"
   }
 }
