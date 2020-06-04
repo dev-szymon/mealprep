@@ -48,9 +48,9 @@ connectDB();
 //   server = http.createServer(app);
 // }
 
-app.get('/', (req, res) => {
-  res.send('<h1>Mealprep API</h1>');
-});
+// app.get('/', (req, res) => {
+//   res.send('<h1>Mealprep API</h1>');
+// });
 
 app.listen(PORT, () =>
   console.log(
