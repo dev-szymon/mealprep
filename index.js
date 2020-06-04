@@ -52,7 +52,7 @@ connectDB();
 //   res.send('<h1>Mealprep API</h1>');
 // });
 
-apollo.listen(PORT, () =>
+app.listen(PORT, () =>
   console.log(
     // '🚀 Server ready at',
     // `http${config.ssl ? 's' : ''}://${config.hostname}:${config.port}${
