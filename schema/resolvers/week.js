@@ -29,12 +29,12 @@ module.exports = {
       );
       const { ingredients } = await Recipe.findById(recipe);
 
-      await Cart.updateOne(
-        { _id: { $in: cart } },
-        {
-          $push: { products: { $each: ingredients } },
-        }
-      );
+      // await Cart.updateOne(
+      //   { _id: { $in: cart } },
+      //   {
+      //     $push: { products: { $each: ingredients } },
+      //   }
+      // );
 
       await Meal.updateOne(
         { _id: { $in: createdMeal } },
@@ -49,11 +49,11 @@ module.exports = {
       const { recipe } = await Meal.findById(meal);
       const { ingredients } = await Recipe.findById(recipe);
       console.log(ingredients);
-      await Cart.findOneAndUpdate(
-        { _id: { $in: cart } },
-        { $pull: { products: ingredients } }
-      );
-      console.log(ingredients);
+      // await Cart.findOneAndUpdate(
+      //   { _id: { $in: cart } },
+      //   { $pull: { products: ingredients } }
+      // );
+      // console.log(ingredients);
       await Meal.deleteOne({ _id: { $in: meal } });
       return args.week;
     },

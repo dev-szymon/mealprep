@@ -1,5 +1,6 @@
 const { gql } = require('apollo-server-express');
 
+// cart: Cart!
 // add logout mutation
 module.exports = User = gql`
   extend type Query {
@@ -20,7 +21,7 @@ module.exports = User = gql`
     username: String!
     email: String!
     mealPlan: Week
-    cart: Cart!
+
     recipesCreated: [Recipe]!
     recipesSaved: [Recipe]!
     liked: [Recipe]!

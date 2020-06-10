@@ -30,10 +30,10 @@ module.exports = {
       }
 
       const createdWeek = await Week.create({ owner: createdUser, days: [] });
-      const createdCart = await Cart.create({
-        owner: createdUser,
-        products: [],
-      });
+      // const createdCart = await Cart.create({
+      //   owner: createdUser,
+      //   products: [],
+      // });
 
       // getWeek returns array of dates of current week starting from previous sunday
       function getWeek(fromDate) {
@@ -68,9 +68,10 @@ module.exports = {
 
       await createDays();
 
+      // , cart: createdCart
       await User.updateOne(
         { _id: { $in: createdUser } },
-        { $set: { mealPlan: createdWeek, cart: createdCart } },
+        { $set: { mealPlan: createdWeek } },
         { upsert: true, new: true }
       );
 
@@ -146,11 +147,11 @@ module.exports = {
         .execPopulate();
       return user.mealPlan;
     },
-    cart: async (user, args, context, info) => {
-      await user
-        .populate({ path: 'cart', populate: { path: 'cart' } })
-        .execPopulate();
-      return user.cart;
-    },
+    // cart: async (user, args, context, info) => {
+    //   await user
+    //     .populate({ path: 'cart', populate: { path: 'cart' } })
+    //     .execPopulate();
+    //   return user.cart;
+    // },
   },
 };

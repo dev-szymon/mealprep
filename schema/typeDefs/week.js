@@ -1,5 +1,6 @@
 const { gql } = require('apollo-server-express');
 
+// , cart: ID!
 module.exports = dayplan = gql`
   extend type Query {
     getWeek(id: ID!): Week
@@ -7,8 +8,8 @@ module.exports = dayplan = gql`
   }
 
   extend type Mutation {
-    addMeal(day: ID!, recipe: ID!, label: String!, cart: ID!): Meal
-    removeMeal(meal: ID!, cart: ID!): Meal
+    addMeal(day: ID!, recipe: ID!, label: String!): Meal
+    removeMeal(meal: ID!): Meal
   }
 
   type Week {
