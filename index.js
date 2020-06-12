@@ -13,6 +13,7 @@ const resolvers = require('./schema/resolvers/index');
 const apollo = new ApolloServer({
   typeDefs,
   resolvers,
+  cors: cors(),
   context: ({ req, res }) => {
     req, res;
   },
@@ -20,7 +21,6 @@ const apollo = new ApolloServer({
 
 const app = express();
 app.use(helmet());
-app.use(cors());
 
 apollo.applyMiddleware({ app });
 connectDB();
