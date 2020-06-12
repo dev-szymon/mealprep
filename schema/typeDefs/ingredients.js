@@ -7,15 +7,17 @@ module.exports = Ingredient = gql`
   }
 
   extend type Mutation {
-    newIngredient(ingredient: createNewIngredient): Ingredient
+    newIngredient(ingredient: ingredientInput): Ingredient
+    updateIngredient(ingredient: ingredientInput): Ingredient
   }
 
-  input createNewIngredient {
+  input ingredientInput {
     name: String!
     kcal: Float!
     carbs: Float!
     protein: Float!
     fats: Float!
+    tips: [String]
   }
 
   type Ingredient {
@@ -28,5 +30,3 @@ module.exports = Ingredient = gql`
     inRecipes: [Recipe]!
   }
 `;
-
-// need to create separate model for tips with author and likes

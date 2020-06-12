@@ -33,8 +33,9 @@ module.exports = {
       await Recipe.deleteOne({ _id: args.recipeID });
       return null;
     },
-    // TODO check if they are not saved yet
-    saveRecipe: async (root, args, context, info) => {
+    updateRecipe: async (root, args, context, info) => {},
+    // TODO implement toggle logic
+    toggleSaveRecipe: async (root, args, context, info) => {
       const { loggedIn, recipeId } = args;
       await User.updateOne(
         { _id: { $in: loggedIn } },
@@ -46,19 +47,7 @@ module.exports = {
       );
       return await Recipe.findById(recipeId);
     },
-    unsaveRecipe: async (root, args, context, info) => {
-      const { loggedIn, recipeId } = args;
-      await User.updateOne(
-        { _id: { $in: loggedIn } },
-        { $pull: { recipesSaved: recipeId } }
-      );
-      await Recipe.updateOne(
-        { _id: { $in: recipeId } },
-        { $pull: { cookBooked: loggedIn } }
-      );
-      return await Recipe.findById(recipeId);
-    },
-    likeRecipe: async (root, args, context, info) => {
+    toggleLikeRecipe: async (root, args, context, info) => {
       const { loggedIn, recipeId } = args;
       await User.updateOne(
         { _id: { $in: loggedIn } },
@@ -69,18 +58,6 @@ module.exports = {
         { _id: { $in: recipeId } },
         { $push: { likes: loggedIn } },
         { upsert: true, new: true }
-      );
-      return await Recipe.findById(recipeId);
-    },
-    unlikeRecipe: async (root, args, context, info) => {
-      const { loggedIn, recipeId } = args;
-      await User.updateOne(
-        { _id: { $in: loggedIn } },
-        { $pull: { liked: recipeId } }
-      );
-      await Recipe.updateOne(
-        { _id: { $in: recipeId } },
-        { $pull: { likes: loggedIn } }
       );
       return await Recipe.findById(recipeId);
     },

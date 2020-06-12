@@ -8,7 +8,7 @@ module.exports = {
     },
     getIngredients: (root, args, context, info) => {
       return Ingredient.find({});
-    }
+    },
   },
   Mutation: {
     newIngredient: async (root, args, context, info) => {
@@ -16,7 +16,8 @@ module.exports = {
         throw new UserInputError('Ingredient already exists.');
       }
       return Ingredient.create(args.ingredient);
-    }
+    },
+    updateIngredient: async (root, args, context, info) => {},
   },
   Ingredient: {
     inRecipes: async (ingredient, args, context, info) => {
@@ -24,6 +25,6 @@ module.exports = {
         .populate({ path: 'inRecipes', populate: { path: 'inRecipes' } })
         .execPopulate();
       return ingredient.inRecipes;
-    }
-  }
+    },
+  },
 };

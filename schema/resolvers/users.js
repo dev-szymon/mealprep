@@ -1,13 +1,9 @@
 const User = require('../../models/User');
-const Week = require('../../models/Week');
-const Day = require('../../models/Day');
-const Cart = require('../../models/Cart');
 const useryup = require('../validation/user');
 const { AuthenticationError } = require('apollo-server-express');
 
 module.exports = {
   Query: {
-    //   context is req
     me: (root, args, context, info) => {
       // checks the ID of logged in user
       return User.findById(args.userId);
@@ -29,56 +25,9 @@ module.exports = {
         console.log(err);
       }
 
-      const createdWeek = await Week.create({ owner: createdUser, days: [] });
-      // const createdCart = await Cart.create({
-      //   owner: createdUser,
-      //   products: [],
-      // });
-
-      // getWeek returns array of dates of current week starting from previous sunday
-      function getWeek(fromDate) {
-        var sunday = new Date(
-            fromDate.setDate(fromDate.getDate() - fromDate.getDay())
-          ),
-          result = [new Date(sunday)];
-        while (sunday.setDate(sunday.getDate() + 1) && sunday.getDay() !== 0) {
-          result.push(new Date(sunday));
-        }
-        return result;
-      }
-
-      const date = new Date();
-
-      // creates days for each day of the current week, pushes them to the users week
-      const createDays = async () => {
-        getWeek(date).map(async (d) => {
-          const createdDay = await Day.create({
-            inWeek: createdWeek,
-            meals: [],
-            date: d,
-          });
-          await Week.updateOne(
-            { _id: { $in: createdWeek } },
-            { $push: { days: createdDay } },
-            { upsert: true, new: true }
-          );
-        });
-        return;
-      };
-
-      await createDays();
-
-      // , cart: createdCart
-      await User.updateOne(
-        { _id: { $in: createdUser } },
-        { $set: { mealPlan: createdWeek } },
-        { upsert: true, new: true }
-      );
-
       return createdUser;
     },
     logIn: async (root, args, context, info) => {
-      // probably need to modularise
       const message = 'Incorrect email or password, please try again';
       const user = await User.findOne({ email: args.email });
       if (!user || !(await user.matchesPassword(args.password))) {
@@ -86,9 +35,9 @@ module.exports = {
       }
       return user;
     },
-    // add check if user is not already following
-    followUser: async (root, args, context, info) => {
-      const { followedId, loggedIn } = args;
+    toggleFollowUser: async (root, args, context, info) => {
+      // implement toggle logic
+      const { user, followed } = args;
       await User.updateOne(
         { _id: { $in: followedId } },
         {
@@ -99,22 +48,6 @@ module.exports = {
         { _id: { $in: loggedIn } },
         {
           $push: { following: followedId },
-        }
-      );
-      return await User.findById(followedId);
-    },
-    unfollowUser: async (root, args, context, info) => {
-      const { followedId, loggedIn } = args;
-      await User.updateOne(
-        { _id: { $in: followedId } },
-        {
-          $pull: { followers: loggedIn },
-        }
-      );
-      await User.updateOne(
-        { _id: { $in: loggedIn } },
-        {
-          $pull: { following: followedId },
         }
       );
       return await User.findById(followedId);
@@ -141,17 +74,5 @@ module.exports = {
       await user.populate('liked').execPopulate();
       return user.liked;
     },
-    mealPlan: async (user, args, context, info) => {
-      await user
-        .populate({ path: 'mealPlan', populate: { path: 'mealPlan' } })
-        .execPopulate();
-      return user.mealPlan;
-    },
-    // cart: async (user, args, context, info) => {
-    //   await user
-    //     .populate({ path: 'cart', populate: { path: 'cart' } })
-    //     .execPopulate();
-    //   return user.cart;
-    // },
   },
 };

@@ -3,12 +3,12 @@ if (process.env.NODE_ENV !== 'production') {
 }
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
+const helmet = require('helmet');
+const cors = require('cors');
 const connectDB = require('./config/db');
 const PORT = process.env.PORT || 5000;
 const typeDefs = require('./schema/typeDefs/index');
 const resolvers = require('./schema/resolvers/index');
-const helmet = require('helmet');
-const cors = require('cors');
 
 const apollo = new ApolloServer({
   typeDefs,
