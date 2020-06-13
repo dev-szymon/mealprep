@@ -17,6 +17,8 @@ const apollo = new ApolloServer({
   context: ({ req, res }) => {
     req, res;
   },
+  introspection: true,
+  playground: true,
 });
 
 const app = express();
