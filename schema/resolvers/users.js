@@ -1,31 +1,51 @@
 const User = require('../../models/User');
 const useryup = require('../validation/user');
-const { AuthenticationError } = require('apollo-server-express');
+const jwt = require('jsonwebtoken');
+const {
+  AuthenticationError,
+  UserInputError,
+} = require('apollo-server-express');
 
 module.exports = {
   Query: {
-    me: (root, args, context, info) => {
-      // checks the ID of logged in user
-      return User.findById(args.userId);
+    me: async (root, args, { user }, info) => {
+      try {
+        return await User.findById(user.id);
+      } catch (err) {
+        throw new AuthenticationError('Please log in!');
+      }
     },
-    getUsers: (root, args, context, info) => {
-      // if can't find return user can no longer be found
-      return User.find({});
+    getUsers: async (root, args, context, info) => {
+      return await User.find({}).limit(100);
     },
-    getUser: (root, args, context, info) => {
-      return User.findById(args.id);
+    getUserByUsername: async (root, { username }, context, info) => {
+      return await User.findOne({ username: username });
+    },
+    getUserById: async (root, args, { id }, info) => {
+      return await User.findById(id);
     },
   },
   Mutation: {
     newUser: async (root, args, context, info) => {
-      const createdUser = await User.create(args);
+      const message = 'Invalid input, please try again';
+
+      // validate data provided by the User
       try {
         await useryup.validate(args, { abortEarly: false });
       } catch (err) {
-        console.log(err);
+        throw new UserInputError(message);
       }
 
-      return createdUser;
+      // create new User and return JWT
+      try {
+        const createdUser = await User.create(args);
+        return jwt.sign({ id: createdUser._id }, process.env.JWT_SECRET, {
+          expiresIn: '1h',
+        });
+      } catch (err) {
+        console.log(err);
+        throw new Error('Error creating account');
+      }
     },
     logIn: async (root, args, context, info) => {
       const message = 'Incorrect email or password, please try again';
@@ -33,24 +53,48 @@ module.exports = {
       if (!user || !(await user.matchesPassword(args.password))) {
         throw new AuthenticationError(message);
       }
-      return user;
+      return jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: '1h',
+      });
     },
-    toggleFollowUser: async (root, args, context, info) => {
+    toggleFollowUser: async (root, { followed }, { user }, info) => {
       // implement toggle logic
-      const { user, followed } = args;
-      await User.updateOne(
-        { _id: { $in: followedId } },
-        {
-          $push: { followers: loggedIn },
-        }
-      );
-      await User.updateOne(
-        { _id: { $in: loggedIn } },
-        {
-          $push: { following: followedId },
-        }
-      );
-      return await User.findById(followedId);
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
+      const checkUser = await User.findById(user.id);
+      const isFollowing = checkUser.following.includes(followed);
+
+      if (isFollowing) {
+        await User.updateOne(
+          { _id: followed },
+          {
+            $pull: { followers: user.id },
+          }
+        );
+        await User.updateOne(
+          { _id: user.id },
+          {
+            $pull: { following: followed },
+          }
+        );
+      } else {
+        await User.updateOne(
+          { _id: followed },
+          {
+            $push: { followers: user.id },
+          }
+        );
+        await User.updateOne(
+          { _id: user.id },
+          {
+            $push: { following: followed },
+          }
+        );
+      }
+
+      return await User.findById(followed);
     },
   },
   User: {

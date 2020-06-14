@@ -8,18 +8,19 @@ module.exports = Recipe = gql`
   }
 
   extend type Mutation {
-    newRecipe(recipe: recipeInput): Recipe
-    updateRecipe(recipe: recipeInput): Recipe
-    deleteRecipe(recipe: ID!): Recipe
-    toggleSaveRecipe(user: ID!, recipe: ID!): Recipe
-    toggleLikeRecipe(user: ID!, recipe: ID!): Recipe
+    newRecipe(recipe: recipeInput): Recipe!
+    updateRecipe(recipe: recipeInput): Recipe!
+    deleteRecipe(recipe: ID!): Boolean
+    toggleSaveRecipe(recipe: ID!): Recipe!
+    toggleLikeRecipe(recipe: ID!): Recipe!
   }
 
   input recipeInput {
     name: String!
+    pictures: [String]!
     createdBy: ID!
     public: Boolean!
-    category: [String]!
+    tags: [String]!
     ingredients: [ID!]!
     description: String!
     prepTime: Float!
@@ -28,13 +29,14 @@ module.exports = Recipe = gql`
   type Recipe {
     id: ID!
     name: String!
+    pictures: [String]!
     createdBy: User!
     public: Boolean!
-    category: [String]!
+    tags: [String]!
     ingredients: [Ingredient!]!
     description: String!
     prepTime: Float!
-    cookBooked: [User!]!
-    likes: [User!]!
+    cookBooked: [User]!
+    likes: [User]!
   }
 `;

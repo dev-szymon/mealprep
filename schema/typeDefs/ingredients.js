@@ -3,7 +3,7 @@ const { gql } = require('apollo-server-express');
 module.exports = Ingredient = gql`
   extend type Query {
     getIngredient(id: ID!): Ingredient
-    getIngredients: [Ingredient!]!
+    getIngredients: [Ingredient]
   }
 
   extend type Mutation {
@@ -13,11 +13,13 @@ module.exports = Ingredient = gql`
 
   input ingredientInput {
     name: String!
+    photo: String
     kcal: Float!
     carbs: Float!
     protein: Float!
     fats: Float!
-    tips: [String]
+    glycemixIndex: Float
+    tips: [String]!
   }
 
   type Ingredient {
@@ -27,6 +29,8 @@ module.exports = Ingredient = gql`
     carbs: Float!
     protein: Float!
     fats: Float!
+    glycemixIndex: Float
+    tips: [String]!
     inRecipes: [Recipe]!
   }
 `;
