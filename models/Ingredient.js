@@ -5,12 +5,13 @@ const Schema = mongoose.Schema;
 const IngredientSchema = new Schema(
   {
     name: String,
-    photo: String,
+    images: [String],
     kcal: Number,
     carbs: Number,
     protein: Number,
     fats: Number,
     glycemixIndex: Number,
+    isVerified: { type: Boolean, default: false },
     tips: [String],
     inRecipes: [{ type: Schema.Types.ObjectId, ref: 'Recipe' }],
   },

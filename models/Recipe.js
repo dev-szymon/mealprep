@@ -6,7 +6,7 @@ const { ObjectId } = Schema.Types;
 const RecipeSchema = new Schema(
   {
     name: String,
-    pictures: [String],
+    images: [String],
     createdBy: { type: ObjectId, ref: 'User' },
     public: Boolean,
     tags: [String],

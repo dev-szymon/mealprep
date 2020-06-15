@@ -1,65 +1,161 @@
 const Recipe = require('../../models/Recipe');
 const User = require('../../models/User');
 const Ingredient = require('../../models/Ingredient');
+const recipeyup = require('../validation');
+const {
+  AuthenticationError,
+  UserInputError,
+} = require('apollo-server-express');
 
 module.exports = {
   Query: {
-    getRecipe: (root, args, context, info) => {
-      return Recipe.findById(args.id);
+    getRecipe: (root, { id }, context, info) => {
+      return Recipe.findById(id);
     },
     getRecipes: (root, args, context, info) => {
-      return Recipe.find({});
+      return Recipe.find({}).limit(100);
     },
   },
   Mutation: {
-    newRecipe: async (root, args, context, info) => {
+    newRecipe: async (root, { recipe }, { user }, info) => {
+      const message = 'Invalid input, please try again';
+
+      // validate data provided by the User
+      try {
+        await recipeyup.validate(recipe, { abortEarly: false });
+      } catch (err) {
+        throw new UserInputError(message);
+      }
+
       // Creates new recipe and pushes it to ingredients inRecipes array
-      const createdRecipe = await Recipe.create(args.recipe);
-      const { ingredients } = args.recipe;
+      const createdRecipe = await Recipe.create(recipe);
+      const { ingredients } = recipe;
       await Ingredient.updateMany(
         { _id: { $in: ingredients } },
         {
           $push: { inRecipes: createdRecipe },
         }
       );
+      await Recipe.updateOne(
+        { _id: createdRecipe.id },
+        { $set: { createdBy: user.id } }
+      );
       // push created recipe to author's recipeCreated
       await User.updateOne(
-        { _id: { $in: createdRecipe.createdBy } },
+        { _id: user.id },
         { $push: { recipesCreated: createdRecipe } }
       );
       return createdRecipe;
     },
-    deleteRecipe: async (root, args, context, info) => {
-      await Recipe.deleteOne({ _id: args.recipeID });
-      return null;
+    deleteRecipe: async (root, { id }, context, info) => {
+      try {
+        await Recipe.deleteOne({ _id: id });
+        return true;
+      } catch (err) {
+        console.log(err);
+        return false;
+      }
     },
-    updateRecipe: async (root, args, context, info) => {},
-    // TODO implement toggle logic
-    toggleSaveRecipe: async (root, args, context, info) => {
-      const { loggedIn, recipeId } = args;
-      await User.updateOne(
-        { _id: { $in: loggedIn } },
-        { $push: { recipesSaved: recipeId } }
+    updateRecipe: async (root, { recipe, changes }, { user }, info) => {
+      const updatedRecipe = await Recipe.findById(recipe);
+
+      // if the note owner and current user don't match, throw a forbidden error
+      if (updatedRecipe.createdBy !== user.id) {
+        throw new ForbiddenError(
+          `You don't have permissions to update the recipe`
+        );
+      }
+
+      // Update the note in the db and return the updated note
+      return await Recipe.findOneAndUpdate(
+        {
+          _id: recipe,
+        },
+        {
+          $set: {
+            changes,
+          },
+        },
+        {
+          new: true,
+        }
       );
-      await Recipe.updateOne(
-        { _id: { $in: recipeId } },
-        { $push: { cookBooked: loggedIn } }
-      );
-      return await Recipe.findById(recipeId);
     },
-    toggleLikeRecipe: async (root, args, context, info) => {
-      const { loggedIn, recipeId } = args;
-      await User.updateOne(
-        { _id: { $in: loggedIn } },
-        { $push: { liked: recipeId } },
-        { upsert: true, new: true }
-      );
-      await Recipe.updateOne(
-        { _id: { $in: recipeId } },
-        { $push: { likes: loggedIn } },
-        { upsert: true, new: true }
-      );
-      return await Recipe.findById(recipeId);
+    toggleSaveRecipe: async (root, { recipe }, { user }, info) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
+      const checkUser = await User.findById(user.id);
+      const isSaved = checkUser.recipesSaved.includes(recipe);
+
+      if (isSaved) {
+        await Recipe.updateOne(
+          { _id: recipe },
+          {
+            $pull: { cookBooked: user.id },
+          }
+        );
+        await User.updateOne(
+          { _id: user.id },
+          {
+            $pull: { recipesSaved: recipe },
+          }
+        );
+      } else {
+        await Recipe.updateOne(
+          { _id: recipe },
+          {
+            $push: { cookBooked: user.id },
+          }
+        );
+        await User.updateOne(
+          { _id: user.id },
+          {
+            $push: { recipesSaved: recipe },
+          }
+        );
+      }
+
+      return await Recipe.findById(recipe);
+    },
+    toggleLikeRecipe: async (root, { recipe }, { user }, info) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
+      const checkUser = await User.findById(user.id);
+      const isSaved = checkUser.liked.includes(recipe);
+
+      if (isSaved) {
+        await Recipe.updateOne(
+          { _id: recipe },
+          {
+            $pull: { likes: user.id },
+          }
+        );
+        await User.updateOne(
+          { _id: user.id },
+          {
+            $pull: { liked: recipe },
+          }
+        );
+      } else {
+        await Recipe.updateOne(
+          { _id: recipe },
+          {
+            $push: { likes: user.id },
+          }
+        );
+        await User.updateOne(
+          { _id: user.id },
+          {
+            $push: { liked: recipe },
+          }
+        );
+      }
+
+      return await Recipe.findById(recipe);
     },
   },
   Recipe: {

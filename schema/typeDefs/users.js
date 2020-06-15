@@ -19,6 +19,7 @@ module.exports = User = gql`
     username: String!
     email: String!
     avatar: String!
+    accountLevel: Int!
     recipesCreated: [Recipe]!
     recipesSaved: [Recipe]!
     liked: [Recipe]!

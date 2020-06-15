@@ -10,6 +10,7 @@ const UserSchema = new Schema(
     email: { type: String },
     password: { type: String },
     avatar: { type: String },
+    accountLevel: { type: Number, default: 1 },
     recipesCreated: [{ type: ObjectId, ref: 'Recipe' }],
     recipesSaved: [{ type: ObjectId, ref: 'Recipe' }],
     liked: [{ type: ObjectId, ref: 'Recipe' }],

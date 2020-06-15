@@ -1,5 +1,5 @@
 const User = require('../../models/User');
-const useryup = require('../validation/user');
+const useryup = require('../validation');
 const jwt = require('jsonwebtoken');
 const {
   AuthenticationError,
@@ -58,7 +58,6 @@ module.exports = {
       });
     },
     toggleFollowUser: async (root, { followed }, { user }, info) => {
-      // implement toggle logic
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
