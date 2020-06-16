@@ -27,6 +27,7 @@ module.exports = {
       if (await Ingredient.findOne({ name: ingredient.name })) {
         throw new UserInputError('Ingredient already exists.');
       }
+
       try {
         return Ingredient.create({ ...ingredient, addedBy: user.id });
       } catch (err) {

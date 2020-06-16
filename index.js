@@ -8,6 +8,7 @@ const cors = require('cors');
 const connectDB = require('./config/db');
 const PORT = process.env.PORT || 5000;
 const typeDefs = require('./schema/typeDefs/index');
+const jwt = require('jsonwebtoken');
 const resolvers = require('./schema/resolvers/index');
 
 const getUser = (token) => {
@@ -16,6 +17,7 @@ const getUser = (token) => {
       // return the user information from the token
       return jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
+      console.log(err);
       // if there's a problem with the token, throw an error
       throw new Error('Session invalid');
     }
