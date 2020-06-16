@@ -3,7 +3,6 @@ if (process.env.NODE_ENV !== 'production') {
 }
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
-const jwt = require('jsonwebtoken');
 const helmet = require('helmet');
 const cors = require('cors');
 const connectDB = require('./config/db');
@@ -18,7 +17,6 @@ const getUser = (token) => {
       return jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
       // if there's a problem with the token, throw an error
-      console.log(err);
       throw new Error('Session invalid');
     }
   }
@@ -34,6 +32,8 @@ const apollo = new ApolloServer({
     const user = getUser(token);
     return { req, res, user };
   },
+  introspection: true,
+  playground: true,
 });
 
 const app = express();
