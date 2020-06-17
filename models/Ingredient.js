@@ -10,6 +10,7 @@ const IngredientSchema = new Schema(
     carbs: Number,
     protein: Number,
     fats: Number,
+    addedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     glycemixIndex: Number,
     isVerified: { type: Boolean, default: false },
     tips: [String],

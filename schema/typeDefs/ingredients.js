@@ -8,7 +8,10 @@ module.exports = Ingredient = gql`
 
   extend type Mutation {
     newIngredient(ingredient: ingredientInput): Ingredient
-    updateIngredient(ingredient: ID!, changes: ingredientInput): Ingredient
+    updateIngredient(
+      ingredient: ID!
+      changes: updateIngredientInput
+    ): Ingredient
     verifyIngredient(ingredient: ID!): Ingredient
   }
 
@@ -21,6 +24,17 @@ module.exports = Ingredient = gql`
     fats: Float!
     glycemixIndex: Float
     tips: [String]!
+  }
+
+  input updateIngredientInput {
+    name: String
+    images: [String]
+    kcal: Float
+    carbs: Float
+    protein: Float
+    fats: Float
+    glycemixIndex: Float
+    tips: [String]
   }
 
   type Ingredient {

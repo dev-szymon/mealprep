@@ -5,6 +5,7 @@ const recipeyup = require('../validation');
 const {
   AuthenticationError,
   UserInputError,
+  ForbiddenError,
 } = require('apollo-server-express');
 
 module.exports = {
@@ -28,7 +29,10 @@ module.exports = {
       }
 
       // Creates new recipe and pushes it to ingredients inRecipes array
-      const createdRecipe = await Recipe.create(recipe);
+      const createdRecipe = await Recipe.create({
+        ...recipe,
+        createdBy: user.id,
+      });
       const { ingredients } = recipe;
       await Ingredient.updateMany(
         { _id: { $in: ingredients } },
@@ -36,11 +40,7 @@ module.exports = {
           $push: { inRecipes: createdRecipe },
         }
       );
-      await Recipe.updateOne(
-        { _id: createdRecipe.id },
-        { $set: { createdBy: user.id } }
-      );
-      // push created recipe to author's recipeCreated
+
       await User.updateOne(
         { _id: user.id },
         { $push: { recipesCreated: createdRecipe } }
@@ -60,7 +60,7 @@ module.exports = {
       const updatedRecipe = await Recipe.findById(recipe);
 
       // if the note owner and current user don't match, throw a forbidden error
-      if (updatedRecipe.createdBy !== user.id) {
+      if (String(updatedRecipe.createdBy) !== user.id) {
         throw new ForbiddenError(
           `You don't have permissions to update the recipe`
         );
@@ -73,7 +73,7 @@ module.exports = {
         },
         {
           $set: {
-            changes,
+            ...changes,
           },
         },
         {

@@ -29,7 +29,10 @@ module.exports = {
       }
 
       try {
-        return Ingredient.create({ ...ingredient, addedBy: user.id });
+        return await Ingredient.create({
+          ...ingredient,
+          addedBy: user.id,
+        });
       } catch (err) {
         console.log(err);
         throw new Error('Error creating ingredient');
@@ -39,7 +42,7 @@ module.exports = {
       const updatedIngredient = await Ingredient.findById(ingredient);
 
       // if the note owner and current user don't match, throw a forbidden error
-      if (updatedIngredient.addedBy !== user.id) {
+      if (String(updatedIngredient.addedBy) !== user.id) {
         throw new ForbiddenError(
           `You don't have permissions to update the ingredient`
         );
@@ -52,7 +55,7 @@ module.exports = {
         },
         {
           $set: {
-            changes,
+            ...changes,
           },
         },
         {
@@ -68,9 +71,10 @@ module.exports = {
         );
       }
 
-      return await Ingredient.findOneAndUpdateOne(
+      return await Ingredient.findOneAndUpdate(
         { _id: ingredient },
-        { $set: { isVerified: true } }
+        { $set: { isVerified: true } },
+        { new: true }
       );
     },
   },
@@ -80,6 +84,10 @@ module.exports = {
         .populate({ path: 'inRecipes', populate: { path: 'inRecipes' } })
         .execPopulate();
       return ingredient.inRecipes;
+    },
+    addedBy: async (ingredient, args, context, info) => {
+      await ingredient.populate({ path: 'addedBy' }).execPopulate();
+      return ingredient.addedBy;
     },
   },
 };
