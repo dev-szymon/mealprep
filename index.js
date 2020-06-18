@@ -29,7 +29,7 @@ const apollo = new ApolloServer({
   resolvers,
   cors: cors(),
   context: ({ req, res }) => {
-    const token = req.headers.authorization;
+    const token = req.headers.Authorization;
     // try to retrieve a user with the token
     const user = getUser(token);
     return { req, res, user };
