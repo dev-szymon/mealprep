@@ -34,7 +34,8 @@ const apollo = new ApolloServer({
     const user = getUser(token);
     return { req, res, user };
   },
-  introspection: true
+  // introspection is needed for gatsby-source-graphql plugin to build schema on front end
+  introspection: true,
 });
 
 const app = express();

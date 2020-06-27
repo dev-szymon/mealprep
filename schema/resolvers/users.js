@@ -44,6 +44,7 @@ module.exports = {
         });
       } catch (err) {
         console.log(err);
+        console.log(err.message);
         throw new Error('Error creating account');
       }
     },
