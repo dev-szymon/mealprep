@@ -38,6 +38,7 @@ const apollo = new ApolloServer({
 });
 
 console.log(process.env.JWT_SECRET);
+console.log(process.env.NODE_ENV);
 const app = express();
 app.use(helmet());
 app.use(cors());
