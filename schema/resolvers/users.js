@@ -37,14 +37,13 @@ module.exports = {
       }
 
       // create new User and return JWT
+      const createdUser = await User.create(args);
       try {
-        const createdUser = await User.create(args);
         return jwt.sign({ id: createdUser._id }, process.env.JWT_SECRET, {
-          expiresIn: '1h',
+          expiresIn: '2h',
         });
       } catch (err) {
         console.log(err);
-        console.log(err.message);
         throw new Error('Error creating account');
       }
     },
