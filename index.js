@@ -34,6 +34,7 @@ const apollo = new ApolloServer({
     const user = getUser(token);
     return { req, res, user };
   },
+  introspection: true
 });
 
 const app = express();
