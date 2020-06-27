@@ -15,7 +15,7 @@ const getUser = (token) => {
   if (token) {
     try {
       // return the user information from the token
-      return jwt.verify(token, process.env.JWT_SECRET);
+      return jwt.verify(token, process.env.TOKENSECRET);
     } catch (err) {
       console.log(err);
       // if there's a problem with the token, throw an error
@@ -37,7 +37,7 @@ const apollo = new ApolloServer({
   introspection: true,
 });
 
-console.log(process.env.JWT_SECRET);
+console.log(process.env.TOKENSECRET);
 console.log(process.env.NODE_ENV);
 const app = express();
 app.use(helmet());

@@ -39,7 +39,7 @@ module.exports = {
       // create new User and return JWT
       const createdUser = await User.create(args);
       try {
-        return jwt.sign({ id: createdUser._id }, process.env.JWT_SECRET, {
+        return jwt.sign({ id: createdUser._id }, process.env.TOKENSECRET, {
           expiresIn: '2h',
         });
       } catch (err) {
@@ -53,7 +53,7 @@ module.exports = {
       if (!user || !(await user.matchesPassword(args.password))) {
         throw new AuthenticationError(message);
       }
-      return jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+      return jwt.sign({ id: user.id }, process.env.TOKENSECRET, {
         expiresIn: '1h',
       });
     },
