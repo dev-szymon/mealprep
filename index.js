@@ -27,7 +27,6 @@ const getUser = (token) => {
 const apollo = new ApolloServer({
   typeDefs,
   resolvers,
-  cors: cors(),
   context: ({ req, res }) => {
     const token = req.headers.Authorization;
     // try to retrieve a user with the token
@@ -40,6 +39,7 @@ const apollo = new ApolloServer({
 
 const app = express();
 app.use(helmet());
+app.use(cors());
 
 apollo.applyMiddleware({ app });
 connectDB();
