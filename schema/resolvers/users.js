@@ -27,13 +27,21 @@ module.exports = {
   },
   Mutation: {
     newUser: async (root, args, context, info) => {
-      const message = 'Invalid input, please try again';
-
       // validate data provided by the User
       try {
         await useryup.validate(args, { abortEarly: false });
       } catch (err) {
-        throw new UserInputError(message);
+        throw new UserInputError('Invalid input, please try again');
+      }
+
+      const checkUsername = await User.findOne({ username: args.username });
+      const checkEmail = await User.findOne({ email: args.email });
+
+      if (checkUsername) {
+        throw new UserInputError('Username is already taken.');
+      }
+      if (checkEmail) {
+        throw new UserInputError('Email is already taken.');
       }
 
       // create new User and return JWT

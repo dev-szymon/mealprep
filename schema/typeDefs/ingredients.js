@@ -22,7 +22,7 @@ module.exports = Ingredient = gql`
     carbs: Float!
     protein: Float!
     fats: Float!
-    glycemixIndex: Float
+    glycemicIndex: Float
     tips: [String]!
   }
 
@@ -33,7 +33,7 @@ module.exports = Ingredient = gql`
     carbs: Float
     protein: Float
     fats: Float
-    glycemixIndex: Float
+    glycemicIndex: Float
     tips: [String]
   }
 

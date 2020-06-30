@@ -26,7 +26,7 @@ const apollo = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req, res }) => {
-    const token = req.headers.Authorization;
+    const token = req.headers.authorization;
     // try to retrieve a user with the token
     const user = getUser(token);
     return { req, res, user };
@@ -35,8 +35,6 @@ const apollo = new ApolloServer({
   introspection: true,
 });
 
-console.log(process.env.TOKENSECRET);
-console.log(process.env.NODE_ENV);
 const app = express();
 app.use(helmet());
 app.use(cors());
