@@ -1,10 +1,14 @@
 const User = require('../../models/User');
 const useryup = require('../validation');
-const jwt = require('jsonwebtoken');
 const {
   AuthenticationError,
   UserInputError,
 } = require('apollo-server-express');
+const {
+  createAccessToken,
+  createRefreshToken,
+  sendRefreshToken,
+} = require('../../auth');
 
 module.exports = {
   Query: {
@@ -26,7 +30,7 @@ module.exports = {
     },
   },
   Mutation: {
-    newUser: async (root, args, context, info) => {
+    newUser: async (root, args, { res }, info) => {
       // validate data provided by the User
       try {
         await useryup.validate(args, { abortEarly: false });
@@ -44,26 +48,46 @@ module.exports = {
         throw new UserInputError('Email is already taken.');
       }
 
-      // create new User and return JWT
-      const createdUser = await User.create(args);
+      // create new User and return JWT and refreshJWT
+      const user = await User.create(args);
       try {
-        return jwt.sign({ id: createdUser._id }, process.env.TOKENSECRET, {
-          expiresIn: '2h',
-        });
+        sendRefreshToken(res, createRefreshToken(user));
+        return createAccessToken(user);
       } catch (err) {
         console.log(err);
         throw new Error('Error creating account');
       }
     },
-    logIn: async (root, args, context, info) => {
-      const message = 'Incorrect email or password, please try again';
+    logIn: async (root, args, { res }, info) => {
       const user = await User.findOne({ email: args.email });
       if (!user || !(await user.matchesPassword(args.password))) {
-        throw new AuthenticationError(message);
+        throw new AuthenticationError(
+          'Incorrect email or password, please try again'
+        );
       }
-      return jwt.sign({ id: user.id }, process.env.TOKENSECRET, {
-        expiresIn: '1h',
-      });
+
+      try {
+        sendRefreshToken(res, createRefreshToken(user));
+      } catch (err) {
+        console.log(err);
+      }
+      const token = createAccessToken(user);
+      return token;
+    },
+    // increment token version
+    forgotPassword: async (root, { id }, context, info) => {
+      try {
+        await User.updateOne(
+          { _id: id },
+          {
+            $inc: { tokenVersion: 1 },
+          }
+        );
+        return true;
+      } catch (err) {
+        console.log(err);
+        return false;
+      }
     },
     toggleFollowUser: async (root, { followed }, { user }, info) => {
       if (!user) {

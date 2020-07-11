@@ -12,6 +12,7 @@ module.exports = User = gql`
     newUser(username: String!, email: String!, password: String!): String!
     logIn(email: String!, password: String!): String!
     toggleFollowUser(followed: ID!): User!
+    forgotPassword(id: ID!): Boolean
   }
 
   type User {
@@ -25,5 +26,6 @@ module.exports = User = gql`
     liked: [Recipe]!
     followers: [User]!
     following: [User]!
+    tokenVersion: Int!
   }
 `;
