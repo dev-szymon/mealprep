@@ -13,8 +13,11 @@ const RecipeSchema = new Schema(
     ingredients: [{ type: ObjectId, ref: 'Ingredient' }],
     description: String,
     prepTime: Number,
-    cookBooked: [{ type: ObjectId, ref: 'User' }],
+    cookbooked: [{ type: ObjectId, ref: 'User' }],
+    cookbookedNumber: Number,
     likes: [{ type: ObjectId, ref: 'User' }],
+    likesNumber: Number,
+    kcal: Number,
   },
   { timestamps: true }
 );
