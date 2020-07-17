@@ -9,7 +9,7 @@ module.exports = {
       return Ingredient.findById(id);
     },
     getIngredients: (root, args, context, info) => {
-      return Ingredient.find({});
+      return Ingredient.find({}).limit(100);
     },
   },
   Mutation: {

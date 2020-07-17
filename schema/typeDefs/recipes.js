@@ -30,7 +30,7 @@ module.exports = Recipe = gql`
     images: [String]
     public: Boolean
     tags: [String]
-    ingredients: [ID!]
+    ingredients: [ID!]!
     description: String
     prepTime: Float
   }
@@ -45,7 +45,10 @@ module.exports = Recipe = gql`
     ingredients: [Ingredient!]!
     description: String!
     prepTime: Float!
-    cookBooked: [User]!
+    cookbooked: [User]!
+    cookbookedNumber: Int!
     likes: [User]!
+    likesNumber: Int!
+    kcal: Int!
   }
 `;

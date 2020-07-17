@@ -93,7 +93,7 @@ module.exports = {
         await Recipe.updateOne(
           { _id: recipe },
           {
-            $pull: { cookBooked: user.id },
+            $pull: { cookbooked: user.id },
           }
         );
         await User.updateOne(
@@ -106,7 +106,7 @@ module.exports = {
         await Recipe.updateOne(
           { _id: recipe },
           {
-            $push: { cookBooked: user.id },
+            $push: { cookbooked: user.id },
           }
         );
         await User.updateOne(
@@ -164,6 +164,15 @@ module.exports = {
       await recipe.populate('createdBy').execPopulate();
       return recipe.createdBy;
     },
+    cookbooked: async (recipe, args, context, info) => {
+      await recipe
+        .populate({
+          path: 'cookbooked',
+          populate: { path: 'cookbooked' },
+        })
+        .execPopulate();
+      return recipe.cookbooked;
+    },
     ingredients: async (recipe, args, context, info) => {
       // in order to populate an array you have to go deeper
       await recipe
@@ -171,14 +180,8 @@ module.exports = {
         .execPopulate();
       return recipe.ingredients;
     },
-    cookBooked: async (recipe, args, context, info) => {
-      await recipe
-        .populate({
-          path: 'cookBooked',
-          populate: { path: 'cookBooked' },
-        })
-        .execPopulate();
-      return recipe.cookBooked;
+    cookbookedNumber: (recipe, args, context, info) => {
+      return recipe.cookbooked.length;
     },
     likes: async (recipe, args, context, info) => {
       await recipe
@@ -188,6 +191,27 @@ module.exports = {
         })
         .execPopulate();
       return recipe.likes;
+    },
+    likesNumber: (recipe, args, context, info) => {
+      return recipe.likes.length;
+    },
+    // should I implement kcal calculation here or during newRecipe mutation or on client side?
+    // There is a plan to make it possible to swap ingredients during creating mealplan so this needs to be considered
+    // might move it to either mutations or client in te future
+    // calculations here are heavier on queries, but it's easier to maintain changes or update recipes
+
+    kcal: async (recipe, args, context, info) => {
+      const kcalArr = [];
+      const ingredients = await Ingredient.find({
+        _id: { $in: recipe.ingredients },
+      });
+
+      ingredients.map((i) => kcalArr.push(i.kcal));
+
+      return kcalArr.reduce((a, b) => {
+        const sum = a + b;
+        return sum;
+      });
     },
   },
 };

@@ -25,7 +25,7 @@ module.exports = {
     getUserByUsername: async (root, { username }, context, info) => {
       return await User.findOne({ username: username });
     },
-    getUserById: async (root, args, { id }, info) => {
+    getUserById: async (root, { id }, context, info) => {
       return await User.findById(id);
     },
   },
