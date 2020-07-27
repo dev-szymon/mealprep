@@ -5,6 +5,7 @@ module.exports = Recipe = gql`
   extend type Query {
     getRecipe(id: ID!): Recipe
     getRecipes: [Recipe]
+    recipeFeed(cursor: String): RecipeFeed
   }
 
   extend type Mutation {
@@ -21,7 +22,7 @@ module.exports = Recipe = gql`
     public: Boolean!
     tags: [String]!
     ingredients: [ID!]!
-    description: String!
+    description: [String]!
     prepTime: Float!
   }
 
@@ -31,7 +32,7 @@ module.exports = Recipe = gql`
     public: Boolean
     tags: [String]
     ingredients: [ID!]!
-    description: String
+    description: [String]!
     prepTime: Float
   }
 
@@ -43,12 +44,18 @@ module.exports = Recipe = gql`
     public: Boolean!
     tags: [String]!
     ingredients: [Ingredient!]!
-    description: String!
+    description: [String]!
     prepTime: Float!
     cookbooked: [User]!
     cookbookedNumber: Int!
     likes: [User]!
     likesNumber: Int!
     kcal: Int!
+  }
+
+  type RecipeFeed {
+    recipes: [Recipe]!
+    cursor: String!
+    isMore: Boolean!
   }
 `;

@@ -129,13 +129,26 @@ module.exports = {
     },
   },
   User: {
-    recipesCreated: async (user, args, context, info) => {
+    recipesCreated: async (user, args, { user: { id } }, info) => {
       await user.populate('recipesCreated').execPopulate();
-      return user.recipesCreated;
+      return user.recipesCreated.filter((r) => {
+        if (!r.public) {
+          if (r.createdBy.toString() === id.toString()) {
+            return r;
+          } else {
+            return;
+          }
+        }
+        return r;
+      });
     },
     recipesSaved: async (user, args, context, info) => {
       await user.populate('recipesSaved').execPopulate();
       return user.recipesSaved;
+    },
+    ingredientsCreated: async (user, args, context, info) => {
+      await user.populate('ingredientsCreated').execPopulate();
+      return user.ingredientsCreated;
     },
     followers: async (user, args, context, info) => {
       await user.populate('followers').execPopulate();

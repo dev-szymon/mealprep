@@ -2,7 +2,7 @@ const { gql } = require('apollo-server-express');
 
 module.exports = User = gql`
   extend type Query {
-    me: User
+    me(cursor: String): User
     getUsers: [User]!
     getUserByUsername(username: String!): User
     getUserById(id: ID!): User
@@ -23,6 +23,7 @@ module.exports = User = gql`
     accountLevel: Int!
     recipesCreated: [Recipe]!
     recipesSaved: [Recipe]!
+    ingredientsCreated: [Ingredient]!
     liked: [Recipe]!
     followers: [User]!
     following: [User]!

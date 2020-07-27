@@ -2,6 +2,7 @@ const Ingredient = require('../../models/Ingredient');
 const User = require('../../models/User');
 const { UserInputError, ForbiddenError } = require('apollo-server-express');
 const recipeyup = require('../validation');
+const paginatedQuery = require('../../utils');
 
 module.exports = {
   Query: {
@@ -10,6 +11,9 @@ module.exports = {
     },
     getIngredients: (root, args, context, info) => {
       return Ingredient.find({}).limit(100);
+    },
+    recipeFeed: async (root, { cursor }, context, info) => {
+      return paginatedQuery(Ingredient, 10, cursor);
     },
   },
   Mutation: {
@@ -29,10 +33,17 @@ module.exports = {
       }
 
       try {
-        return await Ingredient.create({
+        const createdIngredient = await Ingredient.create({
           ...ingredient,
           addedBy: user.id,
         });
+
+        await User.updateOne(
+          { _id: user.id },
+          { $push: { ingredientsCreated: createdIngredient } }
+        );
+
+        return createdIngredient;
       } catch (err) {
         console.log(err);
         throw new Error('Error creating ingredient');

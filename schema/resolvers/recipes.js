@@ -7,6 +7,7 @@ const {
   UserInputError,
   ForbiddenError,
 } = require('apollo-server-express');
+const { paginatedQuery } = require('../../utils');
 
 module.exports = {
   Query: {
@@ -15,6 +16,9 @@ module.exports = {
     },
     getRecipes: (root, args, context, info) => {
       return Recipe.find({}).limit(100);
+    },
+    recipeFeed: async (root, { cursor }, context, info) => {
+      return paginatedQuery(Recipe, 10, cursor);
     },
   },
   Mutation: {
@@ -28,24 +32,34 @@ module.exports = {
         throw new UserInputError(message);
       }
 
-      // Creates new recipe and pushes it to ingredients inRecipes array
-      const createdRecipe = await Recipe.create({
-        ...recipe,
-        createdBy: user.id,
-      });
-      const { ingredients } = recipe;
-      await Ingredient.updateMany(
-        { _id: { $in: ingredients } },
-        {
-          $push: { inRecipes: createdRecipe },
-        }
-      );
+      if (await Recipe.findOne({ name: recipe.name })) {
+        throw new UserInputError('Recipe already exists.');
+      }
 
-      await User.updateOne(
-        { _id: user.id },
-        { $push: { recipesCreated: createdRecipe } }
-      );
-      return createdRecipe;
+      // Creates new recipe and pushes it to ingredients inRecipes array
+      try {
+        const createdRecipe = await Recipe.create({
+          ...recipe,
+          createdBy: user.id,
+        });
+        const { ingredients } = recipe;
+        await Ingredient.updateMany(
+          { _id: { $in: ingredients } },
+          {
+            $push: { inRecipes: createdRecipe },
+          }
+        );
+
+        await User.updateOne(
+          { _id: user.id },
+          { $push: { recipesCreated: createdRecipe } }
+        );
+        return createdRecipe;
+      } catch (err) {
+        console.log(err);
+
+        throw new Error('Error creating ingredient');
+      }
     },
     deleteRecipe: async (root, { id }, context, info) => {
       try {

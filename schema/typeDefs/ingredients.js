@@ -4,6 +4,7 @@ module.exports = Ingredient = gql`
   extend type Query {
     getIngredient(id: ID!): Ingredient
     getIngredients: [Ingredient]
+    ingredientFeed(cursor: String): IngredientFeed
   }
 
   extend type Mutation {
@@ -49,5 +50,11 @@ module.exports = Ingredient = gql`
     isVerified: Boolean
     tips: [String]!
     inRecipes: [Recipe]!
+  }
+
+  type IngredientFeed {
+    recipes: [Recipe]!
+    cursor: String!
+    isMore: Boolean!
   }
 `;

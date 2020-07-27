@@ -11,7 +11,7 @@ const RecipeSchema = new Schema(
     public: Boolean,
     tags: [String],
     ingredients: [{ type: ObjectId, ref: 'Ingredient' }],
-    description: String,
+    description: [String],
     prepTime: Number,
     cookbooked: [{ type: ObjectId, ref: 'User' }],
     cookbookedNumber: Number,
