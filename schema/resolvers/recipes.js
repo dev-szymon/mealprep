@@ -40,7 +40,7 @@ module.exports = {
       try {
         const createdRecipe = await Recipe.create({
           ...recipe,
-          createdBy: user.id,
+          createdBy: user,
         });
         const { ingredients } = recipe;
         await Ingredient.updateMany(
@@ -51,7 +51,7 @@ module.exports = {
         );
 
         await User.updateOne(
-          { _id: user.id },
+          { _id: user },
           { $push: { recipesCreated: createdRecipe } }
         );
         return createdRecipe;
@@ -61,8 +61,15 @@ module.exports = {
         throw new Error('Error creating ingredient');
       }
     },
-    deleteRecipe: async (root, { id }, context, info) => {
+    deleteRecipe: async (root, { id }, { user }, info) => {
       try {
+        const recipe = await Recipe.findOne({ _id: id });
+
+        // check if user sending request has required permissions
+        if (String(recipe.createdBy) !== user) {
+          throw new ForbiddenError('Forbidden request');
+        }
+
         await Recipe.deleteOne({ _id: id });
         return true;
       } catch (err) {
@@ -74,7 +81,7 @@ module.exports = {
       const updatedRecipe = await Recipe.findById(recipe);
 
       // if the note owner and current user don't match, throw a forbidden error
-      if (String(updatedRecipe.createdBy) !== user.id) {
+      if (String(updatedRecipe.createdBy) !== user) {
         throw new ForbiddenError(
           `You don't have permissions to update the recipe`
         );

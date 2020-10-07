@@ -4,17 +4,16 @@ const {
   AuthenticationError,
   UserInputError,
 } = require('apollo-server-express');
-const {
-  createAccessToken,
-  createRefreshToken,
-  sendRefreshToken,
-} = require('../../auth');
 
 module.exports = {
   Query: {
     me: async (root, args, { user }, info) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
       try {
-        return await User.findById(user.id);
+        return await User.findById(user);
       } catch (err) {
         throw new AuthenticationError('Please log in!');
       }
@@ -30,7 +29,7 @@ module.exports = {
     },
   },
   Mutation: {
-    newUser: async (root, args, { res }, info) => {
+    newUser: async (root, args, { req }, info) => {
       // validate data provided by the User
       try {
         await useryup.validate(args, { abortEarly: false });
@@ -48,17 +47,17 @@ module.exports = {
         throw new UserInputError('Email is already taken.');
       }
 
-      // create new User and return JWT and refreshJWT
+      // create new User and return session
       const user = await User.create(args);
       try {
-        sendRefreshToken(res, createRefreshToken(user));
-        return createAccessToken(user);
+        req.session.sid = user.id;
+        return user.id;
       } catch (err) {
         console.log(err);
         throw new Error('Error creating account');
       }
     },
-    logIn: async (root, args, { res }, info) => {
+    logIn: async (root, args, { req }, info) => {
       const user = await User.findOne({ email: args.email });
       if (!user || !(await user.matchesPassword(args.password))) {
         throw new AuthenticationError(
@@ -66,13 +65,9 @@ module.exports = {
         );
       }
 
-      try {
-        sendRefreshToken(res, createRefreshToken(user));
-      } catch (err) {
-        console.log(err);
-      }
-      const token = createAccessToken(user);
-      return token;
+      req.session.sid = user.id;
+
+      return user.id;
     },
     // increment token version
     forgotPassword: async (root, { id }, context, info) => {
