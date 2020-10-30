@@ -15,7 +15,7 @@ const RedisStore = connectRedis(session);
 
 const client = new Redis({
   port: 6379,
-  host: 'localhost',
+  host: process.env.HOST_URL,
 });
 
 const apollo = new ApolloServer({
