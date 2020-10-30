@@ -9,6 +9,10 @@ module.exports = {
     getIngredient: (root, { id }, context, info) => {
       return Ingredient.findById(id);
     },
+
+    getIngredientByName: async (root, { name }, context, info) => {
+      return await Ingredient.find({ name: new RegExp(name, 'i') }).limit(100);
+    },
     getIngredients: (root, args, context, info) => {
       return Ingredient.find({}).limit(100);
     },

@@ -23,13 +23,15 @@ module.exports = {
   },
   Mutation: {
     newRecipe: async (root, { recipe }, { user }, info) => {
-      const message = 'Invalid input, please try again';
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
 
       // validate data provided by the User
       try {
         await recipeyup.validate(recipe, { abortEarly: false });
       } catch (err) {
-        throw new UserInputError(message);
+        throw new UserInputError('Invalid input, please try again');
       }
 
       if (await Recipe.findOne({ name: recipe.name })) {
@@ -62,6 +64,10 @@ module.exports = {
       }
     },
     deleteRecipe: async (root, { id }, { user }, info) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
       try {
         const recipe = await Recipe.findOne({ _id: id });
 
@@ -78,6 +84,10 @@ module.exports = {
       }
     },
     updateRecipe: async (root, { recipe, changes }, { user }, info) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
       const updatedRecipe = await Recipe.findById(recipe);
 
       // if the note owner and current user don't match, throw a forbidden error

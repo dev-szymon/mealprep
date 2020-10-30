@@ -3,6 +3,7 @@ const { gql } = require('apollo-server-express');
 module.exports = Ingredient = gql`
   extend type Query {
     getIngredient(id: ID!): Ingredient
+    getIngredientByName(name: String!): [Ingredient]
     getIngredients: [Ingredient]
     ingredientFeed(cursor: String): IngredientFeed
   }

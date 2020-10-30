@@ -23,6 +23,7 @@ const apollo = new ApolloServer({
   resolvers,
   context: ({ req, res }) => {
     const user = req.session.sid;
+
     // send req res and user to resolvers with context
     return { req, res, user };
   },
