@@ -35,6 +35,7 @@ const app = express();
 
 app.use(
   session({
+    secret: process.env.REDIS_SECRET,
     store: new RedisStore({ client }),
     name: 'sid',
     cookie: {
@@ -42,7 +43,6 @@ app.use(
       secure: process.env.NODE_ENV === 'production' ? true : false,
       sameSite: true,
     },
-    secret: process.env.REDIS_SECRET,
     rolling: true,
     resave: false,
     saveUninitialized: false,
