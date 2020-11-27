@@ -11,27 +11,14 @@ const PORT = process.env.PORT || 5000;
 const typeDefs = require('./schema/typeDefs/index');
 const resolvers = require('./schema/resolvers/index');
 
+const app = express();
+
 const RedisStore = connectRedis(session);
 
 const client = new Redis({
   port: 6379,
   host: process.env.HOST_URL,
 });
-
-const apollo = new ApolloServer({
-  typeDefs,
-  resolvers,
-  context: ({ req, res }) => {
-    const user = req.session.sid;
-
-    // send req res and user to resolvers with context
-    return { req, res, user };
-  },
-  // introspection is needed for gatsby-source-graphql plugin to build schema on front end
-  introspection: true,
-});
-
-const app = express();
 
 app.use(
   session({
@@ -48,6 +35,19 @@ app.use(
     saveUninitialized: false,
   })
 );
+
+const apollo = new ApolloServer({
+  typeDefs,
+  resolvers,
+  context: ({ req, res }) => {
+    const user = req.session.sid;
+
+    // send req res and user to resolvers with context
+    return { req, res, user };
+  },
+  // introspection is needed for gatsby-source-graphql plugin to build schema on front end
+  introspection: true,
+});
 
 app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
