@@ -47,6 +47,7 @@ const apollo = new ApolloServer({
   },
   // introspection is needed for gatsby-source-graphql plugin to build schema on front end
   introspection: true,
+  playground: true,
 });
 
 app.use(helmet());
