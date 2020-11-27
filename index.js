@@ -22,7 +22,7 @@ const client = new Redis({
 
 app.use(
   session({
-    secret: process.env.REDIS_SECRET,
+    secret: 'temporaryvisiblestring',
     store: new RedisStore({ client }),
     name: 'sid',
     cookie: {
