@@ -1,7 +1,7 @@
 const Ingredient = require('../../models/Ingredient');
 const User = require('../../models/User');
 const { UserInputError, ForbiddenError } = require('apollo-server-express');
-const recipeyup = require('../validation');
+const { ingredientyup } = require('../validation');
 const paginatedQuery = require('../../utils');
 
 module.exports = {
@@ -22,13 +22,11 @@ module.exports = {
   },
   Mutation: {
     newIngredient: async (root, { ingredient }, { user }, info) => {
-      const message = 'Invalid input, please try again';
-
       // validate data provided by the User
       try {
         await ingredientyup.validate(ingredient, { abortEarly: false });
       } catch (err) {
-        throw new UserInputError(message);
+        throw new UserInputError('Invalid input, please try again');
       }
 
       // check if ingredient exists

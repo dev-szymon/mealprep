@@ -1,7 +1,7 @@
 const Recipe = require('../../models/Recipe');
 const User = require('../../models/User');
 const Ingredient = require('../../models/Ingredient');
-const recipeyup = require('../validation');
+const { recipeyup } = require('../validation');
 const {
   AuthenticationError,
   UserInputError,

@@ -1,5 +1,5 @@
 const User = require('../../models/User');
-const useryup = require('../validation');
+const { useryup } = require('../validation');
 const {
   AuthenticationError,
   UserInputError,
