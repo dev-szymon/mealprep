@@ -17,7 +17,6 @@ const UserSchema = new Schema(
     liked: [{ type: ObjectId, ref: 'Recipe', default: [] }],
     followers: [{ type: ObjectId, ref: 'User', default: [] }],
     following: [{ type: ObjectId, ref: 'User', default: [] }],
-    tokenVersion: { type: Number, default: 0 },
   },
   { timestamps: true }
 );

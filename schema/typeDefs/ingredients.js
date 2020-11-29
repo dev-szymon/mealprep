@@ -46,7 +46,7 @@ module.exports = Ingredient = gql`
     carbs: Float!
     protein: Float!
     fats: Float!
-    glycemixIndex: Float
+    glycemicIndex: Float
     addedBy: User!
     isVerified: Boolean
     tips: [String]!

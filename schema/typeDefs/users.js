@@ -27,6 +27,5 @@ module.exports = User = gql`
     liked: [Recipe]!
     followers: [User]!
     following: [User]!
-    tokenVersion: Int!
   }
 `;
