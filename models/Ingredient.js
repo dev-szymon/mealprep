@@ -13,7 +13,6 @@ const IngredientSchema = new Schema(
     addedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     glycemicIndex: Number,
     isVerified: { type: Boolean, default: false },
-    tips: [String],
     inRecipes: [{ type: Schema.Types.ObjectId, ref: 'Recipe' }],
   },
   { timestamps: true }

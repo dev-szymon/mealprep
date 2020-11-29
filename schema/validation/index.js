@@ -16,7 +16,7 @@ const recipeyup = yup.object().shape({
 const ingredientyup = yup.object().shape({
   name: yup.string().min(3).max(120),
   kcal: yup.number().positive(),
-  carbs: yup.number().positive(),
+  carbs: yup.number(),
   protein: yup.number().positive(),
   fats: yup.number().positive(),
   glycemixIndex: yup.number().positive(),

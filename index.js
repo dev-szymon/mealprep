@@ -54,14 +54,6 @@ app.use(helmet());
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
 app.use(express.static('public'));
-// app.get('/', (req, res) => {
-//   res.send(
-//     `<div>
-//         <h1>Mealprepare graphqlAPI!<h1>
-//         <a href='/graphql'>visit graphql playground</a>
-//       </div>`
-//   );
-// });
 
 apollo.applyMiddleware({ app, cors: false });
 connectDB();

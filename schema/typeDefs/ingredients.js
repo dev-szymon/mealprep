@@ -25,7 +25,6 @@ module.exports = Ingredient = gql`
     protein: Float!
     fats: Float!
     glycemicIndex: Float
-    tips: [String]!
   }
 
   input updateIngredientInput {
@@ -36,7 +35,6 @@ module.exports = Ingredient = gql`
     protein: Float
     fats: Float
     glycemicIndex: Float
-    tips: [String]
   }
 
   type Ingredient {
@@ -49,7 +47,6 @@ module.exports = Ingredient = gql`
     glycemicIndex: Float
     addedBy: User!
     isVerified: Boolean
-    tips: [String]!
     inRecipes: [Recipe]!
   }
 

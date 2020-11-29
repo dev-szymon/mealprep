@@ -1,13 +1,110 @@
-<html>
-  <head>
-    <title>Mealprep graphql api</title>
+<html lang="en">
+  <head >
+    <meta charset="utf-8">
+    <title>Mealprep Graphql API</title>
+    <link rel="stylesheet" href="./styles.css">
+  
+
   </head>
   <body>
-    <div class="wrapper"><h1>Hello, World!</h1>
+    <div class="wrapper">
+        <header>
+          <h1>Hello, World!</h1>
+        </header>
+        <section>
         <p>This is a graphql api with crud mutations and queries.</p>
-        <p>The playground was intentionally enabled in production to allow you to inspect it.</p>
-        <p>Some of the queries/mutations require authorization. You can perform <code>newUser</code> or <code>logIn</code> mutations but in order to persist user that you need to open settings (top-right corner) and change <code>"request.credentials"</code> to <code>"include"</code>. </p>
-        <a href='/graphql'>inspect schema</a>
-    </div>
+        <p>The playground was intentionally enabled in production in order to allow examination.</p>
+        <p>Some of the queries/mutations require authorization. You can perform <code>newUser</code> or <code>logIn</code> mutations but in order to persist user <span class="highlight">you need to open settings (top-right corner) and change <code>"request.credentials"</code> to <code>"include"</code>.</span> </p>
+          <a href='/graphql'>inspect schema</a>
+        <p>Below you can find some examples which you can paste to the playground. <span class="highlight">Click code blocks to copy!</span></p>
+        <p>hit <b>ctrl + space</b> for hints on what fields you can query</p>
+        <h3>Create an account</h3>
+        <pre>
+          <code>
+          mutation
+            {
+              newUser(
+                username: "your username", 
+                email: "requires email format", 
+                password: "at least 3 characters for showcase's sake"
+              )
+            }
+          </code>
+        </pre>
+        <h3>or log in to the existing one</h3>
+          <pre>
+            <code>
+              mutation {
+                logIn(
+                  email: "your email",
+                  password: "bcrypt encrypts your password"
+                )
+              }
+            </code>
+          </pre>
+        <h3>List available ingredients and recipes</h3>
+        <pre>
+          <code>
+            query {
+              getIngredients {
+                id
+                name
+                addedBy {
+                  username
+                }
+                inRecipes {
+                  id
+                  name
+                  }
+                }
+              }
+          </code>
+        </pre>
+        <pre>
+          <code>
+            query {
+              getRecipes {
+                id
+                name
+                createdBy {
+                  username
+                }
+                ingredients {
+                  name
+                }
+                prepTime
+              }
+            }
+          </code>
+        </pre>
+     </div>
+    </section>
+      
+    <script>
+      let isCopying = false
+
+      const copyToClipboard = (target, text) => {
+      isCopying = true
+      const input = document.body.appendChild(document.createElement("input"))
+      input.value = text
+      input.select()
+      document.execCommand("copy")
+      input.parentNode.removeChild(input)
+      const alert = target.appendChild(document.createElement("div"))
+      alert.classList.add("alert")
+      document.querySelector(".alert").textContent += "Copied to clipboard!";
+      setTimeout(() => {
+        alert.parentNode.removeChild(alert)
+        isCopying = false
+      }, 1000)
+    }
+
+      const codeBlocks = document.querySelectorAll("pre");
+      codeBlocks.forEach(codeBlock => codeBlock.addEventListener("click", (e) => {
+        if (!isCopying) {
+          copyToClipboard(e.target, e.target.innerText)
+        }
+      }))
+    </script>
   </body>
 </html>

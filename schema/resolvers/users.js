@@ -69,21 +69,6 @@ module.exports = {
 
       return user.id;
     },
-    // increment token version
-    forgotPassword: async (root, { id }, context, info) => {
-      try {
-        await User.updateOne(
-          { _id: id },
-          {
-            $inc: { tokenVersion: 1 },
-          }
-        );
-        return true;
-      } catch (err) {
-        console.log(err);
-        return false;
-      }
-    },
     toggleFollowUser: async (root, { followed }, { user }, info) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
@@ -124,11 +109,11 @@ module.exports = {
     },
   },
   User: {
-    recipesCreated: async (user, args, { user: { id } }, info) => {
+    recipesCreated: async (user, args, { user: sessionUser }, info) => {
       await user.populate('recipesCreated').execPopulate();
       return user.recipesCreated.filter((r) => {
         if (!r.public) {
-          if (r.createdBy.toString() === id.toString()) {
+          if (r.createdBy.toString() === sessionUser) {
             return r;
           } else {
             return;

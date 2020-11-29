@@ -20,7 +20,6 @@ module.exports = Recipe = gql`
     name: String!
     images: [String]!
     public: Boolean!
-    tags: [String]!
     ingredients: [ID!]!
     description: [String]!
     prepTime: Float!
@@ -30,7 +29,6 @@ module.exports = Recipe = gql`
     name: String
     images: [String]
     public: Boolean
-    tags: [String]
     ingredients: [ID!]!
     description: [String]!
     prepTime: Float
@@ -42,7 +40,6 @@ module.exports = Recipe = gql`
     images: [String]!
     createdBy: User!
     public: Boolean!
-    tags: [String]!
     ingredients: [Ingredient!]!
     description: [String]!
     prepTime: Float!

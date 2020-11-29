@@ -1,0 +1,51 @@
+body {
+  background-color: rgb(15, 32, 45);
+  color: rgba(255, 255, 255, 0.6);
+  font-family: Helvetica;
+  padding-top: 1rem;
+}
+
+p {
+  font-size: 1.4rem;
+}
+
+.highlight {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+pre {
+  position: relative;
+  background-color: #2c2c32;
+  color: #94dcd4;
+  width: fit-content;
+  padding-right: 4rem;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+a {
+  display: block;
+  background-color: rgba(255, 255, 255, 0.6);
+  color: rgb(15, 32, 45);
+  padding: 1rem;
+  border-radius: 1rem;
+  font-size: 2rem;
+  margin: 2rem auto;
+  width: fit-content;
+}
+
+.wrapper {
+  margin: 0 auto;
+  width: 80%;
+  max-width: 550px;
+}
+
+.alert {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  z-index: 10;
+  border-radius: 1rem;
+  background-color: #1589f5;
+  padding: 1rem;
+}

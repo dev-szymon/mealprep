@@ -26,6 +26,7 @@ module.exports = {
       try {
         await ingredientyup.validate(ingredient, { abortEarly: false });
       } catch (err) {
+        console.log(err.message);
         throw new UserInputError('Invalid input, please try again');
       }
 
@@ -37,11 +38,11 @@ module.exports = {
       try {
         const createdIngredient = await Ingredient.create({
           ...ingredient,
-          addedBy: user.id,
+          addedBy: user,
         });
 
         await User.updateOne(
-          { _id: user.id },
+          { _id: user },
           { $push: { ingredientsCreated: createdIngredient } }
         );
 
