@@ -2,15 +2,15 @@ import * as dotenv from 'dotenv'
 dotenv.config()
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-const helmet = require('helmet');
+const helmet = require('helmet')
 import cors from 'cors';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
 import Redis from 'ioredis';
 import connectDB from './config/db';
-const PORT = process.env.PORT || 5000;
 import typeDefs from './schema/typeDefs/index';
 import resolvers from './schema/resolvers/index';
+const PORT = process.env.PORT || 5000;
 
 declare module "express-session" {
   interface Session {
@@ -30,7 +30,7 @@ const client = new Redis({
 
 app.use(
   session({
-    secret: 'temporaryvisiblestring',
+    secret: process.env.REDIS_SECRET!,
     store: new RedisStore({ client }),
     name: 'sid',
     cookie: {

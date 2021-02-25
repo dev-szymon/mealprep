@@ -56,14 +56,14 @@ const resolvers: IResolvers = {
     updateIngredient: async (root, { ingredient, changes }, { user }, info) => {
       const updatedIngredient = await Ingredient.findById(ingredient);
 
-      // if the note owner and current user don't match, throw a forbidden error
+      // if the owner and current user don't match, throw a forbidden error
       if (updatedIngredient && String(updatedIngredient.addedBy) !== user.id) {
         throw new ForbiddenError(
           `You don't have permissions to update the ingredient`
         );
       }
 
-      // Update the note in the db and return the updated note
+      // Update the ingredient in the db and return the updated ingredient
       return await Ingredient.findOneAndUpdate(
         {
           _id: ingredient,
