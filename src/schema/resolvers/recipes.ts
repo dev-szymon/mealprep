@@ -1,15 +1,12 @@
-const Recipe = require('../../models/Recipe');
-const User = require('../../models/User');
-const Ingredient = require('../../models/Ingredient');
-const { recipeyup } = require('../validation');
-const {
-  AuthenticationError,
-  UserInputError,
-  ForbiddenError,
-} = require('apollo-server-express');
-const { paginatedQuery } = require('../../utils');
+import { IResolvers } from 'apollo-server-express'
+import { Recipe } from '../../models/Recipe';
+import { User } from '../../models/User';
+import {Ingredient} from '../../models/Ingredient';
+import { recipeyup } from '../validation';
+import { AuthenticationError, UserInputError, ForbiddenError } from 'apollo-server-express';
+import { paginatedQuery } from '../../utils';
 
-module.exports = {
+const resolvers: IResolvers=  {
   Query: {
     getRecipe: (root, { id }, context, info) => {
       return Recipe.findById(id);
@@ -72,7 +69,7 @@ module.exports = {
         const recipe = await Recipe.findOne({ _id: id });
 
         // check if user sending request has required permissions
-        if (String(recipe.createdBy) !== user) {
+        if (recipe && String(recipe.createdBy) !== user) {
           throw new ForbiddenError('Forbidden request');
         }
 
@@ -91,7 +88,7 @@ module.exports = {
       const updatedRecipe = await Recipe.findById(recipe);
 
       // if the note owner and current user don't match, throw a forbidden error
-      if (String(updatedRecipe.createdBy) !== user) {
+      if (updatedRecipe && String(updatedRecipe.createdBy) !== user) {
         throw new ForbiddenError(
           `You don't have permissions to update the recipe`
         );
@@ -118,6 +115,11 @@ module.exports = {
       }
 
       const checkUser = await User.findById(user.id);
+
+      if (!checkUser) {
+        throw new AuthenticationError('Please log in!')
+      }
+
       const isSaved = checkUser.recipesSaved.includes(recipe);
 
       if (isSaved) {
@@ -156,6 +158,11 @@ module.exports = {
       }
 
       const checkUser = await User.findById(user.id);
+
+      if (!checkUser) {
+        throw new AuthenticationError('PLease log in!')
+      }
+
       const isSaved = checkUser.liked.includes(recipe);
 
       if (isSaved) {
@@ -232,17 +239,15 @@ module.exports = {
     // calculations here are heavier on queries, but it's easier to maintain changes or update recipes
 
     kcal: async (recipe, args, context, info) => {
-      const kcalArr = [];
       const ingredients = await Ingredient.find({
         _id: { $in: recipe.ingredients },
       });
 
-      ingredients.map((i) => kcalArr.push(i.kcal));
-
-      return kcalArr.reduce((a, b) => {
-        const sum = a + b;
-        return sum;
-      });
+      ingredients.reduce((acc, curr) => {
+        return acc + curr.kcal
+      }, 0)
     },
   },
 };
+
+export default resolvers

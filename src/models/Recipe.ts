@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { model, Schema } from 'mongoose';
+import { RecipeDocument } from '../types'
 
-const Schema = mongoose.Schema;
 const { ObjectId } = Schema.Types;
 
 const RecipeSchema = new Schema(
@@ -21,6 +21,5 @@ const RecipeSchema = new Schema(
   { timestamps: true }
 );
 
-const Recipe = mongoose.model('Recipe', RecipeSchema);
+export const Recipe = model<RecipeDocument>('Recipe', RecipeSchema);
 
-module.exports = Recipe;

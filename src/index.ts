@@ -1,15 +1,22 @@
-require('dotenv').config();
-const express = require('express');
-const { ApolloServer } = require('apollo-server-express');
+import * as dotenv from 'dotenv' 
+dotenv.config()
+import express from 'express';
+import { ApolloServer } from 'apollo-server-express';
 const helmet = require('helmet');
-const cors = require('cors');
-const session = require('express-session');
-const connectRedis = require('connect-redis');
-const Redis = require('ioredis');
-const connectDB = require('./config/db');
+import cors from 'cors';
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+import Redis from 'ioredis';
+import connectDB from './config/db';
 const PORT = process.env.PORT || 5000;
-const typeDefs = require('./schema/typeDefs/index');
-const resolvers = require('./schema/resolvers/index');
+import typeDefs from './schema/typeDefs/index';
+import resolvers from './schema/resolvers/index';
+
+declare module "express-session" {
+  interface Session {
+    sid: string;
+  }
+}
 
 const app = express();
 
@@ -19,6 +26,7 @@ const client = new Redis({
   port: 6379,
   host: process.env.HOST_URL,
 });
+
 
 app.use(
   session({
@@ -40,10 +48,9 @@ const apollo = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req, res }) => {
-    const user = req.session.sid;
+    const user = req.session.sid
 
-    // send req res and user to resolvers with context
-    return { req, res, user };
+    return { req, res, user}
   },
   // introspection is needed for gatsby-source-graphql plugin to build schema on front end
   introspection: true,

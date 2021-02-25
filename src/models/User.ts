@@ -1,7 +1,7 @@
-const mongoose = require('mongoose');
-const { hash, compare } = require('bcrypt');
+import { model, Schema } from 'mongoose';
+import { hash, compare } from 'bcrypt';
+import { UserDocument } from '../types'
 
-const Schema = mongoose.Schema;
 const { ObjectId } = Schema.Types;
 
 const UserSchema = new Schema(
@@ -21,16 +21,16 @@ const UserSchema = new Schema(
   { timestamps: true }
 );
 
-UserSchema.pre('save', async function () {
+
+UserSchema.pre('save', async function (this: UserDocument) {
   if (this.isModified('password')) {
     this.password = await hash(this.password, 10);
   }
 });
 
-UserSchema.methods.matchesPassword = function (password) {
+UserSchema.methods.matchesPassword = function (password: string) {
   return compare(password, this.password);
 };
 
-const User = mongoose.model('User', UserSchema);
+export const User = model<UserDocument>('User', UserSchema);
 
-module.exports = User;

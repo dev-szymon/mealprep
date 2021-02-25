@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import {model, Schema} from 'mongoose';
+import {IngredientDocument} from '../types'
 
-const Schema = mongoose.Schema;
 
 const IngredientSchema = new Schema(
   {
@@ -18,6 +18,5 @@ const IngredientSchema = new Schema(
   { timestamps: true }
 );
 
-const Ingredient = mongoose.model('Ingredient', IngredientSchema);
+export const Ingredient = model<IngredientDocument>('Ingredient', IngredientSchema);
 
-module.exports = Ingredient;

@@ -1,8 +1,12 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 const db = process.env.DB_HOST;
 
 const connectDB = async () => {
   try {
+    if (!db) {
+      throw Error('Database host is not defined')
+    }
+
     await mongoose.connect(db, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
@@ -14,4 +18,4 @@ const connectDB = async () => {
   }
 };
 
-module.exports = connectDB;
+export default connectDB;

@@ -1,7 +1,6 @@
-const { gql } = require('apollo-server-express');
-const User = require('./users');
+import { gql } from 'apollo-server-express';
 
-module.exports = Recipe = gql`
+const Recipe = gql`
   extend type Query {
     getRecipe(id: ID!): Recipe
     getRecipes: [Recipe]
@@ -56,3 +55,5 @@ module.exports = Recipe = gql`
     isMore: Boolean!
   }
 `;
+
+export default Recipe

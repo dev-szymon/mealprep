@@ -1,10 +1,11 @@
-const Ingredient = require('../../models/Ingredient');
-const User = require('../../models/User');
-const { UserInputError, ForbiddenError } = require('apollo-server-express');
-const { ingredientyup } = require('../validation');
-const paginatedQuery = require('../../utils');
+import { IResolvers } from 'apollo-server-express'
+import {Ingredient} from '../../models/Ingredient';
+import {User} from '../../models/User';
+import { UserInputError, ForbiddenError } from 'apollo-server-express';
+import { ingredientyup } from '../validation';
+import {paginatedQuery} from '../../utils';
 
-module.exports = {
+const resolvers: IResolvers = {
   Query: {
     getIngredient: (root, { id }, context, info) => {
       return Ingredient.findById(id);
@@ -56,7 +57,7 @@ module.exports = {
       const updatedIngredient = await Ingredient.findById(ingredient);
 
       // if the note owner and current user don't match, throw a forbidden error
-      if (String(updatedIngredient.addedBy) !== user.id) {
+      if (updatedIngredient && String(updatedIngredient.addedBy) !== user.id) {
         throw new ForbiddenError(
           `You don't have permissions to update the ingredient`
         );
@@ -79,7 +80,7 @@ module.exports = {
     },
     verifyIngredient: async (root, { ingredient }, { user }, info) => {
       const checkUser = await User.findById(user.id);
-      if (checkUser.accountLevel < 2) {
+      if (checkUser && checkUser.accountLevel < 2) {
         throw new ForbiddenError(
           `You don't have permissions to verify the ingredient`
         );
@@ -105,3 +106,5 @@ module.exports = {
     },
   },
 };
+
+export default resolvers

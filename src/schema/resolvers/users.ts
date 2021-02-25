@@ -1,11 +1,14 @@
-const User = require('../../models/User');
-const { useryup } = require('../validation');
-const {
+
+import { IResolvers } from 'apollo-server-express'
+import {RecipeDocument} from '../../types'
+import { User } from '../../models/User';
+import { useryup } from '../validation';
+import {
   AuthenticationError,
   UserInputError,
-} = require('apollo-server-express');
+} from 'apollo-server-express';
 
-module.exports = {
+const resolvers: IResolvers = {
   Query: {
     me: async (root, args, { user }, info) => {
       if (!user) {
@@ -75,6 +78,11 @@ module.exports = {
       }
 
       const checkUser = await User.findById(user.id);
+
+      if (!checkUser) {
+        throw new AuthenticationError('Please log in!');
+      }
+
       const isFollowing = checkUser.following.includes(followed);
 
       if (isFollowing) {
@@ -111,7 +119,7 @@ module.exports = {
   User: {
     recipesCreated: async (user, args, { user: sessionUser }, info) => {
       await user.populate('recipesCreated').execPopulate();
-      return user.recipesCreated.filter((r) => {
+      return user.recipesCreated.filter((r: RecipeDocument) => {
         if (!r.public) {
           if (r.createdBy.toString() === sessionUser) {
             return r;
@@ -144,3 +152,5 @@ module.exports = {
     },
   },
 };
+
+export default resolvers
