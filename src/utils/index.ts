@@ -1,6 +1,10 @@
-import {Model} from 'mongoose'
-import {RecipeDocument, IngredientDocument} from '../types'
-export const paginatedQuery = async (model: Model<RecipeDocument | IngredientDocument>, limit: number, cursor: string) => {
+import { Model } from 'mongoose';
+import { RecipeDocument, IngredientDocument } from '../types';
+export const paginatedQuery = async (
+  model: Model<RecipeDocument | IngredientDocument>,
+  limit: number,
+  cursor: string
+) => {
   // determines whether there is more to fetch
   let isMore = false;
 
@@ -62,4 +66,3 @@ export const paginatedQuery = async (model: Model<RecipeDocument | IngredientDoc
 //     isMore,
 //   };
 // };
-

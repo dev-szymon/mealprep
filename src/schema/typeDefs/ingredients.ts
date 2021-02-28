@@ -1,4 +1,4 @@
-import  { gql } from 'apollo-server-express';
+import { gql } from 'apollo-server-express';
 
 const Ingredient = gql`
   extend type Query {
@@ -40,6 +40,7 @@ const Ingredient = gql`
   type Ingredient {
     id: ID!
     name: String!
+    images: [String]!
     kcal: Float!
     carbs: Float!
     protein: Float!
@@ -57,4 +58,4 @@ const Ingredient = gql`
   }
 `;
 
-export default Ingredient
+export default Ingredient;

@@ -1,12 +1,8 @@
-
-import { IResolvers } from 'apollo-server-express'
-import {RecipeDocument} from '../../types'
+import { IResolvers } from 'apollo-server-express';
+import { RecipeDocument } from '../../types';
 import { User } from '../../models/User';
 import { useryup } from '../validation';
-import {
-  AuthenticationError,
-  UserInputError,
-} from 'apollo-server-express';
+import { AuthenticationError, UserInputError } from 'apollo-server-express';
 
 const resolvers: IResolvers = {
   Query: {
@@ -71,6 +67,15 @@ const resolvers: IResolvers = {
       req.session.sid = user.id;
 
       return user.id;
+    },
+    logOut: (root, args, { req }, info) => {
+      try {
+        req.session.destroy();
+        return true;
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
     },
     toggleFollowUser: async (root, { followed }, { user }, info) => {
       if (!user) {
@@ -153,4 +158,4 @@ const resolvers: IResolvers = {
   },
 };
 
-export default resolvers
+export default resolvers;

@@ -1,9 +1,9 @@
-import { IResolvers } from 'apollo-server-express'
-import {Ingredient} from '../../models/Ingredient';
-import {User} from '../../models/User';
+import { AuthenticationError, IResolvers } from 'apollo-server-express';
+import { Ingredient } from '../../models/Ingredient';
+import { User } from '../../models/User';
 import { UserInputError, ForbiddenError } from 'apollo-server-express';
 import { ingredientyup } from '../validation';
-import {paginatedQuery} from '../../utils';
+import { paginatedQuery } from '../../utils';
 
 const resolvers: IResolvers = {
   Query: {
@@ -23,6 +23,10 @@ const resolvers: IResolvers = {
   },
   Mutation: {
     newIngredient: async (root, { ingredient }, { user }, info) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
       // validate data provided by the User
       try {
         await ingredientyup.validate(ingredient, { abortEarly: false });
@@ -54,6 +58,9 @@ const resolvers: IResolvers = {
       }
     },
     updateIngredient: async (root, { ingredient, changes }, { user }, info) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
       const updatedIngredient = await Ingredient.findById(ingredient);
 
       // if the owner and current user don't match, throw a forbidden error
@@ -79,6 +86,10 @@ const resolvers: IResolvers = {
       );
     },
     verifyIngredient: async (root, { ingredient }, { user }, info) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
       const checkUser = await User.findById(user.id);
       if (checkUser && checkUser.accountLevel < 2) {
         throw new ForbiddenError(
@@ -107,4 +118,4 @@ const resolvers: IResolvers = {
   },
 };
 
-export default resolvers
+export default resolvers;

@@ -1,8 +1,8 @@
-import * as dotenv from 'dotenv' 
-dotenv.config()
+import * as dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import { ApolloServer } from 'apollo-server-express';
-const helmet = require('helmet')
+const helmet = require('helmet');
 import cors from 'cors';
 import session from 'express-session';
 import connectRedis from 'connect-redis';
@@ -12,7 +12,7 @@ import typeDefs from './schema/typeDefs/index';
 import resolvers from './schema/resolvers/index';
 const PORT = process.env.PORT || 5000;
 
-declare module "express-session" {
+declare module 'express-session' {
   interface Session {
     sid: string;
   }
@@ -27,16 +27,15 @@ const client = new Redis({
   host: process.env.HOST_URL,
 });
 
-
 app.use(
   session({
     secret: process.env.REDIS_SECRET!,
     store: new RedisStore({ client }),
     name: 'sid',
     cookie: {
-      maxAge: 1000 * 60 * 60 * 2,
+      maxAge: 1000 * 60 * 60 * 24,
       secure: process.env.NODE_ENV === 'production' ? true : false,
-      sameSite: true,
+      // sameSite: true,
     },
     rolling: true,
     resave: false,
@@ -48,9 +47,9 @@ const apollo = new ApolloServer({
   typeDefs,
   resolvers,
   context: ({ req, res }) => {
-    const user = req.session.sid
+    const user = req.session.sid;
 
-    return { req, res, user}
+    return { req, res, user };
   },
   // introspection is needed for gatsby-source-graphql plugin to build schema on front end
   introspection: true,

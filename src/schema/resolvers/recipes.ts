@@ -1,12 +1,17 @@
-import { IResolvers } from 'apollo-server-express'
+import { IResolvers } from 'apollo-server-express';
 import { Recipe } from '../../models/Recipe';
 import { User } from '../../models/User';
-import {Ingredient} from '../../models/Ingredient';
+import { Ingredient } from '../../models/Ingredient';
 import { recipeyup } from '../validation';
-import { AuthenticationError, UserInputError, ForbiddenError } from 'apollo-server-express';
+import {
+  AuthenticationError,
+  UserInputError,
+  ForbiddenError,
+} from 'apollo-server-express';
 import { paginatedQuery } from '../../utils';
+import { RecipeDocument } from '../../types';
 
-const resolvers: IResolvers=  {
+const resolvers: IResolvers = {
   Query: {
     getRecipe: (root, { id }, context, info) => {
       return Recipe.findById(id);
@@ -14,7 +19,7 @@ const resolvers: IResolvers=  {
     getRecipes: (root, args, context, info) => {
       return Recipe.find({}).limit(100);
     },
-    recipeFeed: async (root, { cursor }, context, info) => {
+    recipeFeed: async (root, { cursor }: { cursor: string }, context, info) => {
       return paginatedQuery(Recipe, 10, cursor);
     },
   },
@@ -60,7 +65,7 @@ const resolvers: IResolvers=  {
         throw new Error('Error creating ingredient');
       }
     },
-    deleteRecipe: async (root, { id }, { user }, info) => {
+    deleteRecipe: async (root, { id }: { id: string }, { user }, info) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
@@ -109,7 +114,12 @@ const resolvers: IResolvers=  {
         }
       );
     },
-    toggleSaveRecipe: async (root, { recipe }, { user }, info) => {
+    toggleSaveRecipe: async (
+      root,
+      { recipe }: { recipe: RecipeDocument['id'] },
+      { user },
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
@@ -117,7 +127,7 @@ const resolvers: IResolvers=  {
       const checkUser = await User.findById(user.id);
 
       if (!checkUser) {
-        throw new AuthenticationError('Please log in!')
+        throw new AuthenticationError('Please log in!');
       }
 
       const isSaved = checkUser.recipesSaved.includes(recipe);
@@ -160,7 +170,7 @@ const resolvers: IResolvers=  {
       const checkUser = await User.findById(user.id);
 
       if (!checkUser) {
-        throw new AuthenticationError('PLease log in!')
+        throw new AuthenticationError('PLease log in!');
       }
 
       const isSaved = checkUser.liked.includes(recipe);
@@ -244,10 +254,10 @@ const resolvers: IResolvers=  {
       });
 
       ingredients.reduce((acc, curr) => {
-        return acc + curr.kcal
-      }, 0)
+        return acc + curr.kcal;
+      }, 0);
     },
   },
 };
 
-export default resolvers
+export default resolvers;
