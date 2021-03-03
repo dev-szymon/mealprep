@@ -1,5 +1,5 @@
-import { model, Schema } from 'mongoose';
-import { RecipeDocument } from '../types'
+import { model, Schema, Model } from 'mongoose';
+import { RecipeDocument } from '../types';
 
 const { ObjectId } = Schema.Types;
 
@@ -21,5 +21,7 @@ const RecipeSchema = new Schema(
   { timestamps: true }
 );
 
-export const Recipe = model<RecipeDocument>('Recipe', RecipeSchema);
-
+export const Recipe = model<RecipeDocument, Model<RecipeDocument>>(
+  'Recipe',
+  RecipeSchema
+);

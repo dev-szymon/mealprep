@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5000;
 
 declare module 'express-session' {
   interface Session {
-    sid: string;
+    sid?: string;
   }
 }
 

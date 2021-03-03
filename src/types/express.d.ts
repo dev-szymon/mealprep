@@ -1,7 +1,11 @@
-import {Request, Response } from 'express-session'
+import { Request, Response } from 'express-session';
 
-export type ResolverContext = {
-    req: Request & {session: Express.Session}
-    res: Response
-    user: string
+export interface ResolverContext {
+  req: Request & { session: Express.Session };
+  res: Response;
+  user: string;
+}
+
+export interface Context {
+  user: string | undefined;
 }

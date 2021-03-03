@@ -9,11 +9,11 @@ import {
   ForbiddenError,
 } from 'apollo-server-express';
 import { paginatedQuery } from '../../utils';
-import { RecipeDocument } from '../../types';
+import { Context, RecipeDocument } from '../../types';
 
 const resolvers: IResolvers = {
   Query: {
-    getRecipe: (root, { id }, context, info) => {
+    getRecipe: (root, { id }: { id: string }, context, info) => {
       return Recipe.findById(id);
     },
     getRecipes: (root, args, context, info) => {
@@ -24,7 +24,12 @@ const resolvers: IResolvers = {
     },
   },
   Mutation: {
-    newRecipe: async (root, { recipe }, { user }, info) => {
+    newRecipe: async (
+      root,
+      { recipe }: { recipe: RecipeDocument },
+      { user }: Context,
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
@@ -46,6 +51,7 @@ const resolvers: IResolvers = {
           ...recipe,
           createdBy: user,
         });
+
         const { ingredients } = recipe;
         await Ingredient.updateMany(
           { _id: { $in: ingredients } },
@@ -56,7 +62,7 @@ const resolvers: IResolvers = {
 
         await User.updateOne(
           { _id: user },
-          { $push: { recipesCreated: createdRecipe } }
+          { $push: { recipesCreated: createdRecipe.id } }
         );
         return createdRecipe;
       } catch (err) {

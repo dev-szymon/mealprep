@@ -11,7 +11,7 @@ const User = gql`
   extend type Mutation {
     newUser(username: String!, email: String!, password: String!): String!
     logIn(email: String!, password: String!): String!
-    logOut(user: ID!): Boolean!
+    logOut: Boolean!
     toggleFollowUser(followed: ID!): User!
   }
 
