@@ -7,7 +7,7 @@ export interface RecipeDocument extends Document {
   name: string;
   images: [string];
   createdBy: UserDocument['id'];
-  public: boolean;
+  private: boolean;
   ingredients: [IngredientDocument['id']];
   description: [RecipeDocument['id']];
   prepTime: number;

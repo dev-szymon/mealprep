@@ -4,14 +4,20 @@ import { User } from '../../models/User';
 import { UserInputError, ForbiddenError } from 'apollo-server-express';
 import { ingredientyup } from '../validation';
 import { paginatedQuery } from '../../utils';
+import { Context, IngredientChanges, IngredientDocument } from '../../types';
 
 const resolvers: IResolvers = {
   Query: {
-    getIngredient: (root, { id }, context, info) => {
+    getIngredient: (root, { id }: { id: string }, context, info) => {
       return Ingredient.findById(id);
     },
 
-    getIngredientByName: async (root, { name }, context, info) => {
+    getIngredientByName: async (
+      root,
+      { name }: { name: string },
+      context,
+      info
+    ) => {
       return await Ingredient.find({ name: new RegExp(name, 'i') }).limit(100);
     },
     getIngredients: (root, args, context, info) => {
@@ -22,7 +28,12 @@ const resolvers: IResolvers = {
     },
   },
   Mutation: {
-    newIngredient: async (root, { ingredient }, { user }, info) => {
+    newIngredient: async (
+      root,
+      { ingredient }: { ingredient: IngredientDocument },
+      { user }: Context,
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
@@ -48,7 +59,7 @@ const resolvers: IResolvers = {
 
         await User.updateOne(
           { _id: user },
-          { $push: { ingredientsCreated: createdIngredient } }
+          { $push: { ingredientsCreated: createdIngredient.id } }
         );
 
         return createdIngredient;
@@ -57,14 +68,22 @@ const resolvers: IResolvers = {
         throw new Error('Error creating ingredient');
       }
     },
-    updateIngredient: async (root, { ingredient, changes }, { user }, info) => {
+    updateIngredient: async (
+      root,
+      {
+        ingredientID,
+        changes,
+      }: { ingredientID: string; changes: IngredientChanges },
+      { user }: Context,
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
-      const updatedIngredient = await Ingredient.findById(ingredient);
+      const updatedIngredient = await Ingredient.findById(ingredientID);
 
       // if the owner and current user don't match, throw a forbidden error
-      if (updatedIngredient && String(updatedIngredient.addedBy) !== user.id) {
+      if (updatedIngredient && String(updatedIngredient.addedBy) !== user) {
         throw new ForbiddenError(
           `You don't have permissions to update the ingredient`
         );
@@ -73,7 +92,7 @@ const resolvers: IResolvers = {
       // Update the ingredient in the db and return the updated ingredient
       return await Ingredient.findOneAndUpdate(
         {
-          _id: ingredient,
+          _id: ingredientID,
         },
         {
           $set: {
@@ -85,12 +104,17 @@ const resolvers: IResolvers = {
         }
       );
     },
-    verifyIngredient: async (root, { ingredient }, { user }, info) => {
+    verifyIngredient: async (
+      root,
+      { ingredientID }: { ingredientID: string },
+      { user }: Context,
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
 
-      const checkUser = await User.findById(user.id);
+      const checkUser = await User.findById(user);
       if (checkUser && checkUser.accountLevel < 2) {
         throw new ForbiddenError(
           `You don't have permissions to verify the ingredient`
@@ -98,7 +122,7 @@ const resolvers: IResolvers = {
       }
 
       return await Ingredient.findOneAndUpdate(
-        { _id: ingredient },
+        { _id: ingredientID },
         { $set: { isVerified: true } },
         { new: true }
       );

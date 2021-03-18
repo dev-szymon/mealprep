@@ -3,14 +3,24 @@ import { UserDocument } from './';
 
 export interface IngredientDocument extends Document {
   id: string;
+  addedBy: UserDocument['id'];
+  isVerified: boolean;
+  inRecipes: [RecipeDocument['id']];
   name: string;
-  images: [string];
+  images: string[];
   kcal: number;
   carbs: number;
   protein: number;
   fats: number;
-  addedBy: UserDocument['id'];
   glycemicIndex: number;
-  isVerified: boolean;
-  inRecipes: [RecipeDocument['id']];
+}
+
+export interface IngredientChanges {
+  name?: string;
+  images?: string[];
+  kcal?: number;
+  carbs?: number;
+  protein?: number;
+  fats?: number;
+  glycemicIndex?: number;
 }

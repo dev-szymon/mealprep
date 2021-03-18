@@ -1,5 +1,5 @@
 import { Document } from 'mongoose';
-import { RecipeDocument } from '.';
+import { RecipeDocument, IngredientDocument } from '.';
 
 export interface UserDocument extends Document {
   id: string;

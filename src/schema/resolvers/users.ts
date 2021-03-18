@@ -57,11 +57,11 @@ const resolvers: IResolvers = {
         throw new UserInputError('Email is already taken.');
       }
 
-      // create new User and return session
-      const user = await User.create(args);
       try {
+        // create new User and return session
+        const user = await User.create(args);
         req.session.sid = user.id;
-        return user.id;
+        return user;
       } catch (err) {
         console.log(err);
         throw new Error('Error creating account');
@@ -77,7 +77,7 @@ const resolvers: IResolvers = {
 
       req.session.sid = user.id;
 
-      return user.id;
+      return user;
     },
     logOut: (root, args, { req }, info) => {
       try {

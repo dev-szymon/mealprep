@@ -11,14 +11,14 @@ const Recipe = gql`
     newRecipe(recipe: recipeInput): Recipe!
     updateRecipe(recipe: ID!, changes: updateRecipeInput!): Recipe!
     deleteRecipe(id: ID!): Boolean
-    toggleSaveRecipe(recipe: ID!): Recipe!
-    toggleLikeRecipe(recipe: ID!): Recipe!
+    toggleSaveRecipe(recipe: ID!): User!
+    toggleLikeRecipe(recipe: ID!): User!
   }
 
   input recipeInput {
     name: String!
     images: [String]!
-    public: Boolean!
+    private: Boolean!
     ingredients: [ID!]!
     description: [String]!
     prepTime: Float!
@@ -27,7 +27,7 @@ const Recipe = gql`
   input updateRecipeInput {
     name: String
     images: [String]
-    public: Boolean
+    private: Boolean
     ingredients: [ID!]!
     description: [String]!
     prepTime: Float
@@ -38,7 +38,7 @@ const Recipe = gql`
     name: String!
     images: [String]!
     createdBy: User!
-    public: Boolean!
+    private: Boolean!
     ingredients: [Ingredient!]!
     description: [String]!
     prepTime: Float!
@@ -46,7 +46,7 @@ const Recipe = gql`
     cookbookedNumber: Int!
     likes: [User]!
     likesNumber: Int!
-    kcal: Int!
+    kcal: Int
   }
 
   type RecipeFeed {
@@ -56,4 +56,4 @@ const Recipe = gql`
   }
 `;
 
-export default Recipe
+export default Recipe;

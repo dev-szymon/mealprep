@@ -28,7 +28,7 @@ export const paginatedQuery = async (
     nodes = nodes.slice(0, -1);
   }
 
-  const newCursor = nodes[nodes.length - 1]._id;
+  const newCursor: string = nodes[nodes.length - 1]._id;
 
   return {
     nodes,

@@ -47,12 +47,22 @@ const resolvers: IResolvers = {
 
       // Creates new recipe and pushes it to ingredients inRecipes array
       try {
+        const { ingredients } = recipe;
+
+        const totalKcal = (
+          await Ingredient.find({ _id: { $in: ingredients } })
+        ).reduce((acc, i) => {
+          return acc + i.kcal;
+        }, 0);
+
+        console.log(totalKcal);
+
         const createdRecipe = await Recipe.create({
           ...recipe,
           createdBy: user,
+          kcal: totalKcal,
         });
 
-        const { ingredients } = recipe;
         await Ingredient.updateMany(
           { _id: { $in: ingredients } },
           {
@@ -91,7 +101,12 @@ const resolvers: IResolvers = {
         return false;
       }
     },
-    updateRecipe: async (root, { recipe, changes }, { user }, info) => {
+    updateRecipe: async (
+      root,
+      { recipe, changes },
+      { user }: Context,
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
@@ -123,6 +138,54 @@ const resolvers: IResolvers = {
     toggleSaveRecipe: async (
       root,
       { recipe }: { recipe: RecipeDocument['id'] },
+      { user }: Context,
+      info
+    ) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
+      const currentUser = await User.findById(user);
+
+      if (!currentUser) {
+        throw new AuthenticationError('Please log in!');
+      }
+
+      const isSaved = currentUser.recipesSaved.includes(recipe);
+
+      if (isSaved) {
+        await Recipe.updateOne(
+          { _id: recipe },
+          {
+            $pull: { cookbooked: user },
+          }
+        );
+        return await User.findOneAndUpdate(
+          { _id: user },
+          {
+            $pull: { recipesSaved: recipe },
+          },
+          { new: true }
+        );
+      } else {
+        await Recipe.updateOne(
+          { _id: recipe },
+          {
+            $push: { cookbooked: user },
+          }
+        );
+        return await User.findOneAndUpdate(
+          { _id: user },
+          {
+            $push: { recipesSaved: recipe },
+          },
+          { new: true }
+        );
+      }
+    },
+    toggleLikeRecipe: async (
+      root,
+      { recipe }: { recipe: RecipeDocument['id'] },
       { user },
       info
     ) => {
@@ -130,86 +193,47 @@ const resolvers: IResolvers = {
         throw new AuthenticationError('Please log in!');
       }
 
-      const checkUser = await User.findById(user.id);
+      const currentUser = await User.findById(user);
 
-      if (!checkUser) {
-        throw new AuthenticationError('Please log in!');
-      }
-
-      const isSaved = checkUser.recipesSaved.includes(recipe);
-
-      if (isSaved) {
-        await Recipe.updateOne(
-          { _id: recipe },
-          {
-            $pull: { cookbooked: user.id },
-          }
-        );
-        await User.updateOne(
-          { _id: user.id },
-          {
-            $pull: { recipesSaved: recipe },
-          }
-        );
-      } else {
-        await Recipe.updateOne(
-          { _id: recipe },
-          {
-            $push: { cookbooked: user.id },
-          }
-        );
-        await User.updateOne(
-          { _id: user.id },
-          {
-            $push: { recipesSaved: recipe },
-          }
-        );
-      }
-
-      return await Recipe.findById(recipe);
-    },
-    toggleLikeRecipe: async (root, { recipe }, { user }, info) => {
-      if (!user) {
-        throw new AuthenticationError('Please log in!');
-      }
-
-      const checkUser = await User.findById(user.id);
-
-      if (!checkUser) {
+      if (!currentUser) {
         throw new AuthenticationError('PLease log in!');
       }
 
-      const isSaved = checkUser.liked.includes(recipe);
+      const isLiked = currentUser.liked.includes(recipe);
 
-      if (isSaved) {
+      if (isLiked) {
         await Recipe.updateOne(
           { _id: recipe },
           {
-            $pull: { likes: user.id },
+            $pull: { likes: user },
           }
         );
-        await User.updateOne(
-          { _id: user.id },
+        return await User.findOneAndUpdate(
+          { _id: user },
           {
             $pull: { liked: recipe },
+          },
+          {
+            new: true,
           }
         );
       } else {
         await Recipe.updateOne(
           { _id: recipe },
           {
-            $push: { likes: user.id },
+            $push: { likes: user },
           }
         );
-        await User.updateOne(
-          { _id: user.id },
+        return await User.findOneAndUpdate(
+          { _id: user },
           {
             $push: { liked: recipe },
+          },
+          {
+            new: true,
           }
         );
       }
-
-      return await Recipe.findById(recipe);
     },
   },
   Recipe: {
@@ -248,20 +272,6 @@ const resolvers: IResolvers = {
     },
     likesNumber: (recipe, args, context, info) => {
       return recipe.likes.length;
-    },
-    // should I implement kcal calculation here or during newRecipe mutation or on client side?
-    // There is a plan to make it possible to swap ingredients during creating mealplan so this needs to be considered
-    // might move it to either mutations or client in te future
-    // calculations here are heavier on queries, but it's easier to maintain changes or update recipes
-
-    kcal: async (recipe, args, context, info) => {
-      const ingredients = await Ingredient.find({
-        _id: { $in: recipe.ingredients },
-      });
-
-      ingredients.reduce((acc, curr) => {
-        return acc + curr.kcal;
-      }, 0);
     },
   },
 };

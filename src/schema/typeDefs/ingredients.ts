@@ -11,10 +11,10 @@ const Ingredient = gql`
   extend type Mutation {
     newIngredient(ingredient: ingredientInput): Ingredient
     updateIngredient(
-      ingredient: ID!
+      ingredientID: ID!
       changes: updateIngredientInput
     ): Ingredient
-    verifyIngredient(ingredient: ID!): Ingredient
+    verifyIngredient(ingredientID: ID!): Ingredient
   }
 
   input ingredientInput {

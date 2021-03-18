@@ -8,7 +8,7 @@ export const useryup = yup.object().shape({
 
 export const recipeyup = yup.object().shape({
   name: yup.string().min(3).max(120),
-  public: yup.boolean(),
+  private: yup.boolean(),
   prepTime: yup.number().positive(),
   description: yup.string().min(20).max(2500),
 });
@@ -21,4 +21,3 @@ export const ingredientyup = yup.object().shape({
   fats: yup.number().positive(),
   glycemixIndex: yup.number().positive(),
 });
-

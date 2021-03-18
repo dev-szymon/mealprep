@@ -8,7 +8,7 @@ const RecipeSchema = new Schema(
     name: String,
     images: [String],
     createdBy: { type: ObjectId, ref: 'User' },
-    public: Boolean,
+    private: Boolean,
     ingredients: [{ type: ObjectId, ref: 'Ingredient' }],
     description: [String],
     prepTime: Number,
