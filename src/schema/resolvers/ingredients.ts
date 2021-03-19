@@ -12,7 +12,7 @@ const resolvers: IResolvers = {
       return Ingredient.findById(id);
     },
 
-    getIngredientByName: async (
+    getIngredientsByName: async (
       root,
       { name }: { name: string },
       context,

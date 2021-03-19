@@ -19,6 +19,14 @@ const resolvers: IResolvers = {
     getRecipes: (root, args, context, info) => {
       return Recipe.find({}).limit(100);
     },
+    getRecipesByName: async (
+      root,
+      { name }: { name: string },
+      context,
+      info
+    ) => {
+      return await Recipe.find({ name: new RegExp(name, 'i') }).limit(100);
+    },
     recipeFeed: async (root, { cursor }: { cursor: string }, context, info) => {
       return paginatedQuery(Recipe, 10, cursor);
     },

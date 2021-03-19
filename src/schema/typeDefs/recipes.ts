@@ -4,6 +4,7 @@ const Recipe = gql`
   extend type Query {
     getRecipe(id: ID!): Recipe
     getRecipes: [Recipe]
+    getRecipesByName(name: String!): [Recipe]
     recipeFeed(cursor: String): RecipeFeed
   }
 

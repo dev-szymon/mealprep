@@ -3,7 +3,7 @@ import { gql } from 'apollo-server-express';
 const Ingredient = gql`
   extend type Query {
     getIngredient(id: ID!): Ingredient
-    getIngredientByName(name: String!): [Ingredient]
+    getIngredientsByName(name: String!): [Ingredient]
     getIngredients: [Ingredient]
     ingredientFeed(cursor: String): IngredientFeed
   }
