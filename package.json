@@ -2,7 +2,7 @@
   "name": "mealprep",
   "version": "1.0.0",
   "description": "Recipe and grocery shopping app",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
     "dev": "nodemon --exec ts-node src/index.ts",
