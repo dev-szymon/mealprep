@@ -1,16 +1,23 @@
-const Ingredient = require('../../models/Ingredient');
-const User = require('../../models/User');
-const { UserInputError, ForbiddenError } = require('apollo-server-express');
-const { ingredientyup } = require('../validation');
-const paginatedQuery = require('../../utils');
+import { AuthenticationError, IResolvers } from 'apollo-server-express';
+import { Ingredient } from '../../models/Ingredient';
+import { User } from '../../models/User';
+import { UserInputError, ForbiddenError } from 'apollo-server-express';
+import { ingredientyup } from '../validation';
+import { paginatedQuery } from '../../utils';
+import { Context, IngredientChanges, IngredientDocument } from '../../types';
 
-module.exports = {
+const resolvers: IResolvers = {
   Query: {
-    getIngredient: (root, { id }, context, info) => {
+    getIngredient: (root, { id }: { id: string }, context, info) => {
       return Ingredient.findById(id);
     },
 
-    getIngredientByName: async (root, { name }, context, info) => {
+    getIngredientsByName: async (
+      root,
+      { name }: { name: string },
+      context,
+      info
+    ) => {
       return await Ingredient.find({ name: new RegExp(name, 'i') }).limit(100);
     },
     getIngredients: (root, args, context, info) => {
@@ -21,7 +28,16 @@ module.exports = {
     },
   },
   Mutation: {
-    newIngredient: async (root, { ingredient }, { user }, info) => {
+    newIngredient: async (
+      root,
+      { ingredient }: { ingredient: IngredientDocument },
+      { user }: Context,
+      info
+    ) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
       // validate data provided by the User
       try {
         await ingredientyup.validate(ingredient, { abortEarly: false });
@@ -43,7 +59,7 @@ module.exports = {
 
         await User.updateOne(
           { _id: user },
-          { $push: { ingredientsCreated: createdIngredient } }
+          { $push: { ingredientsCreated: createdIngredient.id } }
         );
 
         return createdIngredient;
@@ -52,20 +68,31 @@ module.exports = {
         throw new Error('Error creating ingredient');
       }
     },
-    updateIngredient: async (root, { ingredient, changes }, { user }, info) => {
-      const updatedIngredient = await Ingredient.findById(ingredient);
+    updateIngredient: async (
+      root,
+      {
+        ingredientID,
+        changes,
+      }: { ingredientID: string; changes: IngredientChanges },
+      { user }: Context,
+      info
+    ) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+      const updatedIngredient = await Ingredient.findById(ingredientID);
 
-      // if the note owner and current user don't match, throw a forbidden error
-      if (String(updatedIngredient.addedBy) !== user.id) {
+      // if the owner and current user don't match, throw a forbidden error
+      if (updatedIngredient && String(updatedIngredient.addedBy) !== user) {
         throw new ForbiddenError(
           `You don't have permissions to update the ingredient`
         );
       }
 
-      // Update the note in the db and return the updated note
+      // Update the ingredient in the db and return the updated ingredient
       return await Ingredient.findOneAndUpdate(
         {
-          _id: ingredient,
+          _id: ingredientID,
         },
         {
           $set: {
@@ -77,16 +104,25 @@ module.exports = {
         }
       );
     },
-    verifyIngredient: async (root, { ingredient }, { user }, info) => {
-      const checkUser = await User.findById(user.id);
-      if (checkUser.accountLevel < 2) {
+    verifyIngredient: async (
+      root,
+      { ingredientID }: { ingredientID: string },
+      { user }: Context,
+      info
+    ) => {
+      if (!user) {
+        throw new AuthenticationError('Please log in!');
+      }
+
+      const checkUser = await User.findById(user);
+      if (checkUser && checkUser.accountLevel < 2) {
         throw new ForbiddenError(
           `You don't have permissions to verify the ingredient`
         );
       }
 
       return await Ingredient.findOneAndUpdate(
-        { _id: ingredient },
+        { _id: ingredientID },
         { $set: { isVerified: true } },
         { new: true }
       );
@@ -105,3 +141,5 @@ module.exports = {
     },
   },
 };
+
+export default resolvers;

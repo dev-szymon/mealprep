@@ -1,9 +1,9 @@
-const { gql } = require('apollo-server-express');
+import { gql } from 'apollo-server-express';
 
-module.exports = Ingredient = gql`
+const Ingredient = gql`
   extend type Query {
     getIngredient(id: ID!): Ingredient
-    getIngredientByName(name: String!): [Ingredient]
+    getIngredientsByName(name: String!): [Ingredient]
     getIngredients: [Ingredient]
     ingredientFeed(cursor: String): IngredientFeed
   }
@@ -11,10 +11,10 @@ module.exports = Ingredient = gql`
   extend type Mutation {
     newIngredient(ingredient: ingredientInput): Ingredient
     updateIngredient(
-      ingredient: ID!
+      ingredientID: ID!
       changes: updateIngredientInput
     ): Ingredient
-    verifyIngredient(ingredient: ID!): Ingredient
+    verifyIngredient(ingredientID: ID!): Ingredient
   }
 
   input ingredientInput {
@@ -40,6 +40,7 @@ module.exports = Ingredient = gql`
   type Ingredient {
     id: ID!
     name: String!
+    images: [String]!
     kcal: Float!
     carbs: Float!
     protein: Float!
@@ -56,3 +57,5 @@ module.exports = Ingredient = gql`
     isMore: Boolean!
   }
 `;
+
+export default Ingredient;

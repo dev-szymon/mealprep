@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { model, Schema, Model } from 'mongoose';
+import { RecipeDocument } from '../types';
 
-const Schema = mongoose.Schema;
 const { ObjectId } = Schema.Types;
 
 const RecipeSchema = new Schema(
@@ -8,7 +8,7 @@ const RecipeSchema = new Schema(
     name: String,
     images: [String],
     createdBy: { type: ObjectId, ref: 'User' },
-    public: Boolean,
+    private: Boolean,
     ingredients: [{ type: ObjectId, ref: 'Ingredient' }],
     description: [String],
     prepTime: Number,
@@ -21,6 +21,7 @@ const RecipeSchema = new Schema(
   { timestamps: true }
 );
 
-const Recipe = mongoose.model('Recipe', RecipeSchema);
-
-module.exports = Recipe;
+export const Recipe = model<RecipeDocument, Model<RecipeDocument>>(
+  'Recipe',
+  RecipeSchema
+);

@@ -1,6 +1,6 @@
-const { gql } = require('apollo-server-express');
+import { gql } from 'apollo-server-express';
 
-module.exports = User = gql`
+const User = gql`
   extend type Query {
     me(cursor: String): User
     getUsers: [User]!
@@ -9,8 +9,9 @@ module.exports = User = gql`
   }
 
   extend type Mutation {
-    newUser(username: String!, email: String!, password: String!): String!
-    logIn(email: String!, password: String!): String!
+    newUser(username: String!, email: String!, password: String!): User!
+    logIn(email: String!, password: String!): User!
+    logOut: Boolean!
     toggleFollowUser(followed: ID!): User!
   }
 
@@ -28,3 +29,5 @@ module.exports = User = gql`
     following: [User]!
   }
 `;
+
+export default User;

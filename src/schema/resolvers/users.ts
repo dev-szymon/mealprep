@@ -1,13 +1,18 @@
-const User = require('../../models/User');
-const { useryup } = require('../validation');
-const {
-  AuthenticationError,
-  UserInputError,
-} = require('apollo-server-express');
+import { FilterRootFields, IResolvers } from 'apollo-server-express';
+import { UserDocument } from '../../types';
+import { User } from '../../models/User';
+import { useryup } from '../validation';
+import { AuthenticationError, UserInputError } from 'apollo-server-express';
+import { Context } from '../../types';
 
-module.exports = {
+interface LogIn {
+  email: string;
+  password: string;
+}
+
+const resolvers: IResolvers = {
   Query: {
-    me: async (root, args, { user }, info) => {
+    me: async (root, args, { user }: Context, info) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
@@ -21,15 +26,20 @@ module.exports = {
     getUsers: async (root, args, context, info) => {
       return await User.find({}).limit(100);
     },
-    getUserByUsername: async (root, { username }, context, info) => {
+    getUserByUsername: async (
+      root,
+      { username }: { username: string | undefined },
+      context,
+      info
+    ) => {
       return await User.findOne({ username: username });
     },
-    getUserById: async (root, { id }, context, info) => {
+    getUserById: async (root, { id }: { id: string }, context, info) => {
       return await User.findById(id);
     },
   },
   Mutation: {
-    newUser: async (root, args, { req }, info) => {
+    newUser: async (root, args: UserDocument, { req }, info) => {
       // validate data provided by the User
       try {
         await useryup.validate(args, { abortEarly: false });
@@ -47,17 +57,17 @@ module.exports = {
         throw new UserInputError('Email is already taken.');
       }
 
-      // create new User and return session
-      const user = await User.create(args);
       try {
+        // create new User and return session
+        const user = await User.create(args);
         req.session.sid = user.id;
-        return user.id;
+        return user;
       } catch (err) {
         console.log(err);
         throw new Error('Error creating account');
       }
     },
-    logIn: async (root, args, { req }, info) => {
+    logIn: async (root, args: LogIn, { req }, info) => {
       const user = await User.findOne({ email: args.email });
       if (!user || !(await user.matchesPassword(args.password))) {
         throw new AuthenticationError(
@@ -67,25 +77,44 @@ module.exports = {
 
       req.session.sid = user.id;
 
-      return user.id;
+      return user;
     },
-    toggleFollowUser: async (root, { followed }, { user }, info) => {
+    logOut: (root, args, { req }, info) => {
+      try {
+        req.session.destroy();
+        return true;
+      } catch (error) {
+        console.log(error);
+        return false;
+      }
+    },
+    toggleFollowUser: async (
+      root,
+      { followed }: { followed: string },
+      { user }: Context,
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
 
-      const checkUser = await User.findById(user.id);
+      const checkUser = await User.findById(user);
+
+      if (!checkUser) {
+        throw new AuthenticationError('Please log in!');
+      }
+
       const isFollowing = checkUser.following.includes(followed);
 
       if (isFollowing) {
         await User.updateOne(
           { _id: followed },
           {
-            $pull: { followers: user.id },
+            $pull: { followers: user },
           }
         );
         await User.updateOne(
-          { _id: user.id },
+          { _id: user },
           {
             $pull: { following: followed },
           }
@@ -94,11 +123,11 @@ module.exports = {
         await User.updateOne(
           { _id: followed },
           {
-            $push: { followers: user.id },
+            $push: { followers: user },
           }
         );
         await User.updateOne(
-          { _id: user.id },
+          { _id: user },
           {
             $push: { following: followed },
           }
@@ -109,38 +138,35 @@ module.exports = {
     },
   },
   User: {
-    recipesCreated: async (user, args, { user: sessionUser }, info) => {
+    // -------------------------------------
+    // info object is useful for populating
+    // import graphqlFields from 'graphql-fields'
+    // -------------------------------------
+    recipesCreated: async (user: UserDocument, args, context, info) => {
       await user.populate('recipesCreated').execPopulate();
-      return user.recipesCreated.filter((r) => {
-        if (!r.public) {
-          if (r.createdBy.toString() === sessionUser) {
-            return r;
-          } else {
-            return;
-          }
-        }
-        return r;
-      });
+      return user.recipesCreated;
     },
-    recipesSaved: async (user, args, context, info) => {
+    recipesSaved: async (user: UserDocument, args, context, info) => {
       await user.populate('recipesSaved').execPopulate();
       return user.recipesSaved;
     },
-    ingredientsCreated: async (user, args, context, info) => {
+    ingredientsCreated: async (user: UserDocument, args, context, info) => {
       await user.populate('ingredientsCreated').execPopulate();
       return user.ingredientsCreated;
     },
-    followers: async (user, args, context, info) => {
+    followers: async (user: UserDocument, args, context, info) => {
       await user.populate('followers').execPopulate();
       return user.followers;
     },
-    following: async (user, args, context, info) => {
+    following: async (user: UserDocument, args, context, info) => {
       await user.populate('following').execPopulate();
       return user.following;
     },
-    liked: async (user, args, context, info) => {
+    liked: async (user: UserDocument, args, context, info) => {
       await user.populate('liked').execPopulate();
       return user.liked;
     },
   },
 };
+
+export default resolvers;

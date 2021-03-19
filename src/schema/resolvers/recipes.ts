@@ -1,28 +1,43 @@
-const Recipe = require('../../models/Recipe');
-const User = require('../../models/User');
-const Ingredient = require('../../models/Ingredient');
-const { recipeyup } = require('../validation');
-const {
+import { IResolvers } from 'apollo-server-express';
+import { Recipe } from '../../models/Recipe';
+import { User } from '../../models/User';
+import { Ingredient } from '../../models/Ingredient';
+import { recipeyup } from '../validation';
+import {
   AuthenticationError,
   UserInputError,
   ForbiddenError,
-} = require('apollo-server-express');
-const { paginatedQuery } = require('../../utils');
+} from 'apollo-server-express';
+import { paginatedQuery } from '../../utils';
+import { Context, RecipeDocument } from '../../types';
 
-module.exports = {
+const resolvers: IResolvers = {
   Query: {
-    getRecipe: (root, { id }, context, info) => {
+    getRecipe: (root, { id }: { id: string }, context, info) => {
       return Recipe.findById(id);
     },
     getRecipes: (root, args, context, info) => {
       return Recipe.find({}).limit(100);
     },
-    recipeFeed: async (root, { cursor }, context, info) => {
+    getRecipesByName: async (
+      root,
+      { name }: { name: string },
+      context,
+      info
+    ) => {
+      return await Recipe.find({ name: new RegExp(name, 'i') }).limit(100);
+    },
+    recipeFeed: async (root, { cursor }: { cursor: string }, context, info) => {
       return paginatedQuery(Recipe, 10, cursor);
     },
   },
   Mutation: {
-    newRecipe: async (root, { recipe }, { user }, info) => {
+    newRecipe: async (
+      root,
+      { recipe }: { recipe: RecipeDocument },
+      { user }: Context,
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
@@ -40,11 +55,22 @@ module.exports = {
 
       // Creates new recipe and pushes it to ingredients inRecipes array
       try {
+        const { ingredients } = recipe;
+
+        const totalKcal = (
+          await Ingredient.find({ _id: { $in: ingredients } })
+        ).reduce((acc, i) => {
+          return acc + i.kcal;
+        }, 0);
+
+        console.log(totalKcal);
+
         const createdRecipe = await Recipe.create({
           ...recipe,
           createdBy: user,
+          kcal: totalKcal,
         });
-        const { ingredients } = recipe;
+
         await Ingredient.updateMany(
           { _id: { $in: ingredients } },
           {
@@ -54,7 +80,7 @@ module.exports = {
 
         await User.updateOne(
           { _id: user },
-          { $push: { recipesCreated: createdRecipe } }
+          { $push: { recipesCreated: createdRecipe.id } }
         );
         return createdRecipe;
       } catch (err) {
@@ -63,7 +89,7 @@ module.exports = {
         throw new Error('Error creating ingredient');
       }
     },
-    deleteRecipe: async (root, { id }, { user }, info) => {
+    deleteRecipe: async (root, { id }: { id: string }, { user }, info) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
@@ -72,7 +98,7 @@ module.exports = {
         const recipe = await Recipe.findOne({ _id: id });
 
         // check if user sending request has required permissions
-        if (String(recipe.createdBy) !== user) {
+        if (recipe && String(recipe.createdBy) !== user) {
           throw new ForbiddenError('Forbidden request');
         }
 
@@ -83,7 +109,12 @@ module.exports = {
         return false;
       }
     },
-    updateRecipe: async (root, { recipe, changes }, { user }, info) => {
+    updateRecipe: async (
+      root,
+      { recipe, changes },
+      { user }: Context,
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
@@ -91,7 +122,7 @@ module.exports = {
       const updatedRecipe = await Recipe.findById(recipe);
 
       // if the note owner and current user don't match, throw a forbidden error
-      if (String(updatedRecipe.createdBy) !== user) {
+      if (updatedRecipe && String(updatedRecipe.createdBy) !== user) {
         throw new ForbiddenError(
           `You don't have permissions to update the recipe`
         );
@@ -112,81 +143,105 @@ module.exports = {
         }
       );
     },
-    toggleSaveRecipe: async (root, { recipe }, { user }, info) => {
+    toggleSaveRecipe: async (
+      root,
+      { recipe }: { recipe: RecipeDocument['id'] },
+      { user }: Context,
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
 
-      const checkUser = await User.findById(user.id);
-      const isSaved = checkUser.recipesSaved.includes(recipe);
+      const currentUser = await User.findById(user);
+
+      if (!currentUser) {
+        throw new AuthenticationError('Please log in!');
+      }
+
+      const isSaved = currentUser.recipesSaved.includes(recipe);
 
       if (isSaved) {
         await Recipe.updateOne(
           { _id: recipe },
           {
-            $pull: { cookbooked: user.id },
+            $pull: { cookbooked: user },
           }
         );
-        await User.updateOne(
-          { _id: user.id },
+        return await User.findOneAndUpdate(
+          { _id: user },
           {
             $pull: { recipesSaved: recipe },
-          }
+          },
+          { new: true }
         );
       } else {
         await Recipe.updateOne(
           { _id: recipe },
           {
-            $push: { cookbooked: user.id },
+            $push: { cookbooked: user },
           }
         );
-        await User.updateOne(
-          { _id: user.id },
+        return await User.findOneAndUpdate(
+          { _id: user },
           {
             $push: { recipesSaved: recipe },
-          }
+          },
+          { new: true }
         );
       }
-
-      return await Recipe.findById(recipe);
     },
-    toggleLikeRecipe: async (root, { recipe }, { user }, info) => {
+    toggleLikeRecipe: async (
+      root,
+      { recipe }: { recipe: RecipeDocument['id'] },
+      { user },
+      info
+    ) => {
       if (!user) {
         throw new AuthenticationError('Please log in!');
       }
 
-      const checkUser = await User.findById(user.id);
-      const isSaved = checkUser.liked.includes(recipe);
+      const currentUser = await User.findById(user);
 
-      if (isSaved) {
+      if (!currentUser) {
+        throw new AuthenticationError('PLease log in!');
+      }
+
+      const isLiked = currentUser.liked.includes(recipe);
+
+      if (isLiked) {
         await Recipe.updateOne(
           { _id: recipe },
           {
-            $pull: { likes: user.id },
+            $pull: { likes: user },
           }
         );
-        await User.updateOne(
-          { _id: user.id },
+        return await User.findOneAndUpdate(
+          { _id: user },
           {
             $pull: { liked: recipe },
+          },
+          {
+            new: true,
           }
         );
       } else {
         await Recipe.updateOne(
           { _id: recipe },
           {
-            $push: { likes: user.id },
+            $push: { likes: user },
           }
         );
-        await User.updateOne(
-          { _id: user.id },
+        return await User.findOneAndUpdate(
+          { _id: user },
           {
             $push: { liked: recipe },
+          },
+          {
+            new: true,
           }
         );
       }
-
-      return await Recipe.findById(recipe);
     },
   },
   Recipe: {
@@ -226,23 +281,7 @@ module.exports = {
     likesNumber: (recipe, args, context, info) => {
       return recipe.likes.length;
     },
-    // should I implement kcal calculation here or during newRecipe mutation or on client side?
-    // There is a plan to make it possible to swap ingredients during creating mealplan so this needs to be considered
-    // might move it to either mutations or client in te future
-    // calculations here are heavier on queries, but it's easier to maintain changes or update recipes
-
-    kcal: async (recipe, args, context, info) => {
-      const kcalArr = [];
-      const ingredients = await Ingredient.find({
-        _id: { $in: recipe.ingredients },
-      });
-
-      ingredients.map((i) => kcalArr.push(i.kcal));
-
-      return kcalArr.reduce((a, b) => {
-        const sum = a + b;
-        return sum;
-      });
-    },
   },
 };
+
+export default resolvers;

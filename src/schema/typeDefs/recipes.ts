@@ -1,10 +1,10 @@
-const { gql } = require('apollo-server-express');
-const User = require('./users');
+import { gql } from 'apollo-server-express';
 
-module.exports = Recipe = gql`
+const Recipe = gql`
   extend type Query {
     getRecipe(id: ID!): Recipe
     getRecipes: [Recipe]
+    getRecipesByName(name: String!): [Recipe]
     recipeFeed(cursor: String): RecipeFeed
   }
 
@@ -12,14 +12,14 @@ module.exports = Recipe = gql`
     newRecipe(recipe: recipeInput): Recipe!
     updateRecipe(recipe: ID!, changes: updateRecipeInput!): Recipe!
     deleteRecipe(id: ID!): Boolean
-    toggleSaveRecipe(recipe: ID!): Recipe!
-    toggleLikeRecipe(recipe: ID!): Recipe!
+    toggleSaveRecipe(recipe: ID!): User!
+    toggleLikeRecipe(recipe: ID!): User!
   }
 
   input recipeInput {
     name: String!
     images: [String]!
-    public: Boolean!
+    private: Boolean!
     ingredients: [ID!]!
     description: [String]!
     prepTime: Float!
@@ -28,7 +28,7 @@ module.exports = Recipe = gql`
   input updateRecipeInput {
     name: String
     images: [String]
-    public: Boolean
+    private: Boolean
     ingredients: [ID!]!
     description: [String]!
     prepTime: Float
@@ -39,7 +39,7 @@ module.exports = Recipe = gql`
     name: String!
     images: [String]!
     createdBy: User!
-    public: Boolean!
+    private: Boolean!
     ingredients: [Ingredient!]!
     description: [String]!
     prepTime: Float!
@@ -47,7 +47,7 @@ module.exports = Recipe = gql`
     cookbookedNumber: Int!
     likes: [User]!
     likesNumber: Int!
-    kcal: Int!
+    kcal: Int
   }
 
   type RecipeFeed {
@@ -56,3 +56,5 @@ module.exports = Recipe = gql`
     isMore: Boolean!
   }
 `;
+
+export default Recipe;
