@@ -35,7 +35,7 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
       secure: process.env.NODE_ENV === 'production' ? true : false,
-      // sameSite: true,
+      sameSite: 'none',
     },
     rolling: true,
     resave: false,
@@ -51,7 +51,6 @@ const apollo = new ApolloServer({
 
     return { req, res, user };
   },
-  // introspection is needed for gatsby-source-graphql plugin to build schema on front end
   introspection: true,
   playground: true,
 });
