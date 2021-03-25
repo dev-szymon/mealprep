@@ -27,6 +27,11 @@ const client = new Redis({
   host: process.env.HOST_URL,
 });
 
+const domain =
+  process.env.NODE_ENV === 'production'
+    ? process.env.CLIENT_DOMAIN
+    : 'localhost';
+
 app.use(
   session({
     secret: process.env.REDIS_SECRET!,
@@ -35,10 +40,8 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
       secure: process.env.NODE_ENV === 'production' ? true : false,
-      domain:
-        process.env.NODE_ENV === 'production'
-          ? process.env.CLIENT_DOMAIN
-          : 'localhost',
+      domain: domain,
+      sameSite: 'none',
     },
 
     rolling: true,
