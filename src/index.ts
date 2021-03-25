@@ -35,8 +35,12 @@ app.use(
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
       secure: process.env.NODE_ENV === 'production' ? true : false,
-      sameSite: 'none',
+      domain:
+        process.env.NODE_ENV === 'production'
+          ? process.env.CLIENT_DOMAIN
+          : 'localhost',
     },
+
     rolling: true,
     resave: false,
     saveUninitialized: false,
